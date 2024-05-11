@@ -1,0 +1,28 @@
+appenders:
+  default:
+    kind: console
+    encoder:
+      kind: pattern
+      pattern: "{h({d(%H:%M:%S)})} - {m}{n}"
+  log_file:
+    kind: rolling_file
+    append: true
+    path: "logs/peekaboo.log"
+    encoder:
+      pattern: "{h({d(%d-%m-%Y %H:%M:%S)})} - {l:<5} {t}:{L} - {m}{n}"
+    policy:
+      kind: compound
+      trigger:
+        kind: size
+        limit: 10mb
+      roller:
+        kind: fixed_window
+        base: 1
+        count: 3
+        pattern: "logs/peekaboo{}.log"
+
+root:
+  level: info
+  appenders:
+    - default
+    - log_file
