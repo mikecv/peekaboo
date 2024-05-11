@@ -1,1 +1,13 @@
+# Ignore code workspace.
+*.code-workspace
+
+# Ignore target builds.
 /target
+
+# Ignore log files.
+/logs
+/logs/*.log
+
+# Ignore image and embedded files.
+/images
+/secret
