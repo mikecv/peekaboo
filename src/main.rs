@@ -6,7 +6,8 @@ use lazy_static::lazy_static;
 use std::fs::File;
 use std::io::prelude::*;
 use std::sync::Mutex;
-use actix_web::{get, App, HttpServer, Responder};
+use actix_files as fs;
+use actix_web::{get, App, HttpServer, Responder, HttpResponse};
 
 use crate::settings::Settings;
 
@@ -29,7 +30,7 @@ lazy_static! {
 
 #[get("/")]
 async fn intro() -> impl Responder {
-    "This test string to be replaced by an html page with css style sheet."
+    HttpResponse::Ok().content_type("text/html").body(include_str!("../static/index.html"))
 }
 
 #[actix_web::main]
@@ -43,7 +44,9 @@ async fn main() -> std::io::Result<()> {
 
     // Create and start web service.
     HttpServer::new(|| {
-        App::new().service(intro)
+        App::new()
+            .service(intro)
+            .service(fs::Files::new("/static", "./static").show_files_listing())
     })
         .bind("127.0.0.1:8080")?
         .run()
