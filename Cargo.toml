@@ -14,6 +14,5 @@ serde_yaml = "0.8"
 lazy_static = "1.4"
 
 # UI related.
-actix-web = "3"
+actix-web = "4.4.0"
 actix-files = "0.6.5"
-tera = "1.5.0"

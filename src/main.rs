@@ -6,9 +6,7 @@ use lazy_static::lazy_static;
 use std::fs::File;
 use std::io::prelude::*;
 use std::sync::Mutex;
-use serde_yaml;
-use actix_web::{HttpServer, App, web, HttpResponse, Responder};
-use tera::{Tera, Context};
+use actix_web::{get, App, HttpServer, Responder};
 
 use crate::settings::Settings;
 
@@ -29,34 +27,25 @@ lazy_static! {
     };
 }
 
-async fn index(tera: web::Data<Tera>) -> impl Responder {
-    let mut data = Context::new();
-    let settings: Settings = SETTINGS.lock().unwrap().clone();
-    data.insert("title", &settings.program_name);
-    data.insert("name", &settings.program_devs);
-
-    let rendered = tera.render("index.html", &data).unwrap();
-    HttpResponse::Ok().body(rendered)
+#[get("/")]
+async fn intro() -> impl Responder {
+    "This test string to be replaced by an html page with css style sheet."
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Logging onfiguration held in log4rs.yml .
+    // Logging configuration held in log4rs.yml .
     log4rs::init_file("log4rs.yml", Default::default()).unwrap();
 
     // Get application metadata to include in initial logging.
-    info!("Application started, version: {}", env!("CARGO_PKG_VERSION"));
+    let settings: Settings = SETTINGS.lock().unwrap().clone();
+    info!("Application started: {} v({})", settings.program_name, settings.program_ver);
 
-    // Load the starting template file.
+    // Create and start web service.
     HttpServer::new(|| {
-        let tera = Tera::new("templates/**/*").unwrap();
-        App::new()
-            .data(tera)
-            .route("/", web::get().to(index))
+        App::new().service(intro)
     })
-
-    // Start the web application.
-    .bind("127.0.0.1:8000")?
-    .run()
-    .await
+        .bind("127.0.0.1:8080")?
+        .run()
+        .await
 }
