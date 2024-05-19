@@ -1,0 +1,38 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+section {
+	/* border: 5px solid red; */
+	border: none;
+}
+
+h1 {
+    color: #32659c;
+	text-align:center;
+}
+
+p {
+    font-size: 1.2em;
+}
+
+input[type="file"] {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: #ffffff;
+    background-color: #32659c;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.thumbnail {
+    display: block;
+    margin: 20px auto;
+    max-width: 400px;
+    max-height: 300px;
+}

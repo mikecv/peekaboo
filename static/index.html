@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Peek-A-Boo</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+</head>
+<body>
+    <h1>Peek-A-Boo</h1>
+    <p style="text-align:center;">An application of Steganography as applied to images.</p>
+    <section>
+        <p style="text-align:center;">
+            <input type="file" id="imageUpload" accept="image/png">
+        </p>
+    </section>
+        <p style="text-align:center;">
+            <img id="thumbnail" class="thumbnail" src="" alt="Image thumbnail will appear here" style="display:none;">
+        </p>
+    <section>
+        <p style="text-align:center;"">Processing results here.</p>
+    </section>
+    <script>
+        document.getElementById('imageUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'image/png') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('thumbnail');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a PNG image.');
+            }
+        });
+    </script>
+</body>
+</html>
