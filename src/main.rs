@@ -10,8 +10,10 @@ use actix_files as fs;
 use actix_web::{get, App, HttpServer, Responder, HttpResponse};
 
 use crate::settings::Settings;
+use crate::steg::Steganography;
 
 pub mod settings;
+pub mod steg;
 
 // Create a global variable for applications settings.
 // This will be available in other files.
@@ -42,13 +44,17 @@ async fn main() -> std::io::Result<()> {
     let settings: Settings = SETTINGS.lock().unwrap().clone();
     info!("Application started: {} v({})", settings.program_name, settings.program_ver);
 
+    // Instatiate a steganography struct.
+    // Call init method to initialise struct.
+    let _img_steg = Steganography::init();
+
     // Create and start web service.
     HttpServer::new(|| {
         App::new()
             .service(intro)
             .service(fs::Files::new("/static", "./static").show_files_listing())
     })
-        .bind("127.0.0.1:8080")?
-        .run()
-        .await
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }

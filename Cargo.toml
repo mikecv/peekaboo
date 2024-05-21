@@ -12,6 +12,8 @@ log4rs = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 lazy_static = "1.4"
+image = "0.23"
+ring = "0.16.20"
 
 # UI related.
 actix-web = "4.4.0"
