@@ -9,33 +9,79 @@
 </head>
 <body>
     <h1>Peek-A-Boo</h1>
-    <p style="text-align:center;">An application of Steganography as applied to images.</p>
-    <section>
+    <p style="text-align:center;">An application of Steganography as applied to digital images.</p>
+
+    <div>
         <p style="text-align:center;">
-            <input type="file" id="imageUpload" accept="image/png">
+            <label for="imageUpload" class="custom-upload">Browse for Image</label>
+            <input type="file" id="imageUpload" accept="image/png" style="display: none;">
+            <span id="fileLabel"></span>
         </p>
-    </section>
+        <p style="text-align:center;">
+            <button id="uploadButton" class="custom-upload" style="display: none;">Upload</button>
+        </p>
+    </div>
+
         <p style="text-align:center;">
             <img id="thumbnail" class="thumbnail" src="" alt="Image thumbnail will appear here" style="display:none;">
         </p>
-    <section>
-        <p style="text-align:center;"">Processing results here.</p>
-    </section>
+
+    <div>
+        <p style="text-align:center;"">Processing results will be shown here.</p>
+    </div>
+
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('imageUpload').value = '';
+        });
+
         document.getElementById('imageUpload').addEventListener('change', function(event) {
             const file = event.target.files[0];
-            if (file && file.type === 'image/png') {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById('thumbnail');
-                    img.src = e.target.result;
-                    img.style.display = 'block';
+            const fileLabel = document.getElementById('fileLabel');
+            const uploadButton = document.getElementById('uploadButton');
+
+            if (file) {
+                fileLabel.textContent = file.name;
+                if (file.type === 'image/png') {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.getElementById('thumbnail');
+                        img.src = e.target.result;
+                        img.style.display = 'block';
+                        uploadButton.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Please select a PNG image.');
+                    uploadButton.style.display = 'none';
                 }
-                reader.readAsDataURL(file);
             } else {
-                alert('Please select a PNG image.');
+                fileLabel.textContent = 'No file selected';
+                uploadButton.style.display = 'none';
             }
         });
+
+        document.getElementById('uploadButton').addEventListener('click', function() {
+            const fileInput = document.getElementById('imageUpload');
+            const file = fileInput.files[0];
+            const uploadButton = document.getElementById('uploadButton');
+            const formData = new FormData();
+
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to upload file.');
+                }
+                uploadButton.style.display = 'none';
+                return response.text();
+            })
+        });
+
     </script>
 </body>
 </html>

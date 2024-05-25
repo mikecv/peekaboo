@@ -5,9 +5,13 @@ body {
 }
 
 section {
-	/* border: 5px solid red; */
 	border: none;
 }
+
+div {
+	border: none;
+    align-items: center;
+  }
 
 h1 {
     color: #32659c;
@@ -18,16 +22,27 @@ p {
     font-size: 1.2em;
 }
 
-input[type="file"] {
-    display: block;
-    margin: 0 auto;
+.custom-upload {
+    display: inline-block;
     padding: 10px 20px;
-    font-size: 12px;
-    color: #ffffff;
-    background-color: #32659c;
-    border: none;
-    border-radius: 5px;
     cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    border: 1px solid #007bff;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.custom-upload:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+#fileLabel {
+    margin-left: 10px;
+    font-style: italic;
 }
 
 .thumbnail {
