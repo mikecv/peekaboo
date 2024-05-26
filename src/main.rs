@@ -42,12 +42,16 @@ async fn intro() -> impl Responder {
 
 #[post("/upload")]
 async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>>>,) -> impl Responder {
+    // Get steg instance in scope.
     let steg = steg.clone();
+    // Get application settings in scope.
+    let settings: Settings = SETTINGS.lock().unwrap().clone();
+
     while let Ok(Some(mut field)) = payload.try_next().await {
         let content_disposition = field.content_disposition();
         if let Some(filename) = content_disposition.get_filename() {
-            let filepath = format!("./tmp/{}", sanitize(&filename));
-            let filepath_clone = filepath.clone(); // Clone filepath for later use
+            let filepath = format!("{}/{}", settings.thumb_folder, sanitize(&filename));
+            let filepath_clone = filepath.clone();
 
             // File::create is a blocking operation, use threadpool.
             let mut f = web::block(move || File::create(filepath)).await.unwrap().unwrap();
@@ -62,11 +66,15 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
                 }).await.unwrap().unwrap();
             }
 
-            // Process the uploaded file with Steganography instance
-            let steg = steg.lock().unwrap();
-            // <MDC> Test, remove later.
-            println!("Test that I can access steg... {}", steg.img_to_proc);
-            println!("Test that I can access filename... {:?}", filepath_clone);
+            // Process the uploaded file with Steganography instance.
+            let mut steg = steg.lock().unwrap();
+            // Load a file for analysis.
+            // This includes whether or not it is coded.
+            steg.load_new_file(filepath_clone);
+            if steg.pic_coded == true {
+                // File is coded, and potentially embedded with files.
+                // Add details of coded status of image here.
+            }
         }
     }
 
@@ -78,8 +86,9 @@ async fn main() -> std::io::Result<()> {
     // Logging configuration held in log4rs.yml .
     log4rs::init_file("log4rs.yml", Default::default()).unwrap();
 
-    // Get application metadata to include in initial logging.
+    // Get application settings in scope.
     let settings: Settings = SETTINGS.lock().unwrap().clone();
+    // Do initial program version logging, mainly as a test.
     info!("Application started: {} v({})", settings.program_name, settings.program_ver);
 
     // Instatiate a steganography struct.
