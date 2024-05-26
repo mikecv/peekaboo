@@ -10,8 +10,13 @@ section {
 
 div {
 	border: none;
+    text-align: center; /* Ensure all divs have centered text and elements */
     align-items: center;
   }
+
+  .center {
+    text-align: center; /* Center the content within this specific div */
+}
 
 h1 {
     color: #32659c;
@@ -42,6 +47,7 @@ p {
 
 #fileLabel {
     margin-left: 10px;
+    font-size: 0.8em;
     font-style: italic;
 }
 

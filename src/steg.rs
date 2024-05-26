@@ -164,8 +164,6 @@ impl Steganography {
 
         // Create path to image.
         let mut img_path = PathBuf::new();
-        img_path.push(&self.settings.thumb_folder);        
-        // img_path.push("images");        
         img_path.push(in_file.clone());
         let img_path_string = img_path.to_string_lossy().into_owned();
         self.image_file = img_path_string;
