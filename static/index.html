@@ -19,15 +19,15 @@
         </p>
         <p style="text-align:center;">
             <button id="uploadButton" class="custom-upload" style="display: none;">Upload</button>
+            <button id="extractButton" class="custom-upload" style="display: none;">Extract</button>
         </p>
     </div>
-
         <p style="text-align:center;">
             <img id="thumbnail" class="thumbnail" src="" alt="Image thumbnail will appear here" style="display:none;">
         </p>
 
     <div>
-        <p style="text-align:center;">Processing results will be shown here.</p>
+        <p id="processingResults" class="results-text" style="text-align:center;">Upload file for analysis.</p>
     </div>
 
     <script>
@@ -39,6 +39,14 @@
             const file = event.target.files[0];
             const fileLabel = document.getElementById('fileLabel');
             const uploadButton = document.getElementById('uploadButton');
+            const resultsElement = document.getElementById('processingResults');
+            const extractButton = document.getElementById('extractButton');
+
+            // Clear previous results and buttons.
+            resultsElement.textContent = 'Upload file for analysis.';
+            resultsElement.className = 'results-text';
+            uploadButton.style.display = 'none';
+            extractButton.style.display = 'none';
 
             if (file) {
                 fileLabel.textContent = file.name;
@@ -65,6 +73,7 @@
             const fileInput = document.getElementById('imageUpload');
             const file = fileInput.files[0];
             const uploadButton = document.getElementById('uploadButton');
+            const extractButton = document.getElementById('extractButton');
             const formData = new FormData();
 
             formData.append('file', file);
@@ -77,9 +86,29 @@
                 if (!response.ok) {
                     throw new Error('Failed to upload file.');
                 }
-                uploadButton.style.display = 'none';
-                return response.text();
+                return response.json();
             })
+            .then(data => {
+                uploadButton.style.display = 'none';
+                const resultsElement = document.getElementById('processingResults');
+                resultsElement.textContent = `File coded: ${data.coded}, Password protected: ${data.password}`;
+                
+                // Add coloured border based on coded status.
+                if (data.coded === "True") {
+                    resultsElement.className = 'results-text coded';
+                    extractButton.style.display = 'block';
+                } else {
+                    resultsElement.className = 'results-text not-coded';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Event listener for extract button.
+        document.getElementById('extractButton').addEventListener('click', function() {
+            alert('Extract button clicked!'); // Replace with actual extraction logic
         });
 
     </script>

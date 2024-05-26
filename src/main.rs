@@ -4,6 +4,7 @@ use log::info;
 use log4rs;
 use futures::{StreamExt, TryStreamExt};
 use lazy_static::lazy_static;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 use std::io::prelude::*;
@@ -47,6 +48,10 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
     // Get application settings in scope.
     let settings: Settings = SETTINGS.lock().unwrap().clone();
 
+    // Json map of response to upload request
+    // following analysis be Steganography methods.
+    let mut response_data = HashMap::new();
+
     while let Ok(Some(mut field)) = payload.try_next().await {
         let content_disposition = field.content_disposition();
         if let Some(filename) = content_disposition.get_filename() {
@@ -71,14 +76,20 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
             // Load a file for analysis.
             // This includes whether or not it is coded.
             steg.load_new_file(filepath_clone);
+
+            // Construct image file analysis results for display to the user.
+            response_data.insert("coded", "False");
+            response_data.insert("password", "False");
             if steg.pic_coded == true {
-                // File is coded, and potentially embedded with files.
-                // Add details of coded status of image here.
+                response_data.insert("coded", "True");
+                if steg.pic_has_pw == true {
+                    response_data.insert("password", "True");
+                }
             }
         }
     }
 
-    HttpResponse::Ok().body("File uploaded successfully")
+    HttpResponse::Ok().json(response_data)
 }
 
 #[actix_web::main]
