@@ -10,7 +10,6 @@ use std::io::Write;
 use std::io::prelude::*;
 use std::sync::{Arc, Mutex};
 use sanitize_filename::sanitize;
-// use actix_files as fs;
 use actix_multipart::Multipart;
 
 use actix_web::{get, post, web, App, HttpServer, HttpResponse, Responder};
@@ -45,6 +44,7 @@ async fn intro() -> impl Responder {
 async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>>>,) -> impl Responder {
     // Get steg instance in scope.
     let steg = steg.clone();
+
     // Get application settings in scope.
     let settings: Settings = SETTINGS.lock().unwrap().clone();
 
@@ -92,6 +92,34 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
     HttpResponse::Ok().json(response_data)
 }
 
+#[post("/extract")]
+async fn extract(steg: web::Data<Arc<Mutex<Steganography>>>) -> impl Responder {
+    // Get steg instance in scope.
+    let mut steg = steg.lock().unwrap();
+
+    // Define the type of response_data explicitly.
+    let mut response_data = HashMap::new();
+
+    // Perform extraction of embedded files.
+    steg.extract_data(String::from(""));
+
+    // Go through steg.embedded_files struct and
+    // extrat the 'file_name' element.
+    // Will eventually go into response.
+    let saved_files = &steg.embedded_files;
+    let mut files_string = String::from("");
+    for file in saved_files {
+        files_string.push_str(&file.file_name);
+    }
+
+    // Construct a response based on the extraction result.
+    // <TODO> Need to update the extracted status based on success of function.
+    response_data.insert("extracted", "True");
+    response_data.insert("filenames", &files_string);
+
+    HttpResponse::Ok().json(response_data)
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Logging configuration held in log4rs.yml .
@@ -112,6 +140,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(img_steg.clone()))
             .service(intro)
             .service(upload)
+            .service(extract)
             .service(actix_files::Files::new("/static", "./static").show_files_listing())
     })
     .bind("127.0.0.1:8080")?

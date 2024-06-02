@@ -10,4 +10,4 @@
 
 # Ignore image and embedded files.
 /images
-/secret
+/secrets

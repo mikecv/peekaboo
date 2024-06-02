@@ -106,10 +106,36 @@
             });
         });
 
-        // Event listener for extract button.
-        document.getElementById('extractButton').addEventListener('click', function() {
-            alert('Extract button clicked!'); // Replace with actual extraction logic
+    // Event listener for extract button
+    document.getElementById('extractButton').addEventListener('click', function() {
+        fetch('/extract', {
+            method: 'POST'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to extract data.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // const resultsElement = document.getElementById('processingResults');
+            // resultsElement.textContent = `${data.status}: ${data.message}`;
+            // resultsElement.className = data.status === 'success' ? 'results-text success' : 'results-text failure';
+            const resultsElement = document.getElementById('processingResults');
+            resultsElement.textContent = `File(s) extracted: ${data.extracted}, File(s): ${data.filenames}`;
+
+            // Add coloured border based on coded status.
+            if (data.extracted === "True") {
+                resultsElement.className = 'results-text coded';
+                extractButton.style.display = 'none';
+            } else {
+                resultsElement.className = 'results-text not-coded';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
         });
+    });
 
     </script>
 </body>

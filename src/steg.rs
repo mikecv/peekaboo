@@ -33,6 +33,7 @@ use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::Path;
 use std::path::PathBuf;
+use std::time::Instant;
 
 use crate::settings::Settings;
 use crate::SETTINGS;
@@ -41,7 +42,9 @@ use crate::SETTINGS;
 // This struct will be included in the main Steganography struct.
 pub struct EmbeddedFile {
     pub file_name: String,
-    pub file_embedded: bool,
+    pub file_extracted: bool,
+    pub file_coded: bool,
+    pub file_analysed: bool,
 }
 
 // Struct of parameters for embedd file and
@@ -65,11 +68,6 @@ pub struct Steganography {
     pub bit: u8,
     pub bytes_read: u32,
     pub code_bytes: Vec<u8>,
-    pub embedded_file_path: String,
-    pub embedded_file_name: String,
-    pub embedded_file_size: u32,
-    pub to_embed_file_path: String,
-    pub to_embed_file_size: u32,
     pub embed_capacity: u64,
     pub embedded_files: Vec<EmbeddedFile>,
 }
@@ -102,11 +100,6 @@ impl Steganography {
             bit: 0,
             bytes_read: 0,
             code_bytes: Vec::with_capacity(0),
-            embedded_file_path: String::from(""),
-            embedded_file_name: String::from(""),
-            embedded_file_size: 0,
-            to_embed_file_path: String::from(""),
-            to_embed_file_size: 0,
             embed_capacity: 0,
             embedded_files: Vec::new(),
         }
@@ -141,17 +134,15 @@ impl Steganography {
         self.plane = 0;
         self.bit = 0;
         self.bytes_read = 0;
-        self.embedded_file_path = String::from("");
-        self.embedded_file_name = String::from("");
-        self.embedded_file_size = 0;
-        self.to_embed_file_path = String::from("");
-        self.to_embed_file_size = 0;
     }
 }
 
 // Method to load a brand new image for analysis.
 impl Steganography {
     pub fn load_new_file(&mut self, in_file:String) {
+        // Initialise timer for function.
+        let start = Instant::now();
+
         // Do image intialisatioins to clean up after any
         // successful or failed image loading.
         // That is, parameters for loaded and imbedded image.
@@ -267,6 +258,10 @@ impl Steganography {
                 info!("Files embedded WITH password.")
             }
         }
+
+        // Determine delta time for function.
+        let duration = start.elapsed();
+        info!("Time for upload: {:?}", duration)
     }
 }
 
@@ -355,6 +350,9 @@ impl Steganography {
 // password required.
 impl Steganography {
     pub fn extract_data(&mut self, pw:String) {
+        // Initialise timer for function.
+        let start = Instant::now();
+
         // If password required then check it.
         if self.pic_has_pw == true {
             // Password required, so check password provided.
@@ -370,6 +368,10 @@ impl Steganography {
         // Either password not required or correct password entered.
         // Either way we can proceed with extracting data.
         self.get_embedded_data();
+
+        // Determine delta time for function.
+        let duration = start.elapsed();
+        info!("Time for file(s) extraction: {:?}", duration)
     }
 }
 
@@ -449,7 +451,7 @@ impl Steganography {
                                         match _string_result {
                                             Ok(string) => {
                                                 let file_name:String = string;
-                                                info!("File name: {}", file_name);
+                                                info!("Embedded file name: {}", file_name);
 
                                                 // Now we need to get the length of the file.
                                                 let bytes_to_read:u32 = 10;
@@ -502,7 +504,7 @@ impl Steganography {
 // and save it to file.
 impl Steganography {
     pub fn extract_file(&mut self, file_size:u32, file_name:String) -> io::Result<()> {
-        info!("Extracting file of size: {}, to: {}.", file_size, file_name);
+        info!("Extracting file of size: {}.", file_size);
 
         // Now the file data in the image needs to be written to a
         // file.
@@ -514,11 +516,16 @@ impl Steganography {
         // If it doesn't exist, create it.
         fs::create_dir_all(&self.settings.secret_folder)?;
 
+        // We need to remove the path from the filename,
+        // as we are not interested in the original path.
+        let path = Path::new(&file_name);
+        let raw_filename = path.file_name().unwrap();
+
         // Get file path for the file to be written.
         // All files will be written to a specific folder.
         let mut wrt_path = PathBuf::new();       
         wrt_path.push(&self.settings.secret_folder);
-        wrt_path.push(file_name.clone());
+        wrt_path.push(raw_filename);
         let mut wrt_path_string = wrt_path.to_string_lossy().into_owned();
 
         // Check if we are going to overwrite an existing file.
@@ -545,7 +552,7 @@ impl Steganography {
         }
 
         // Open the file for writing.
-        info!("Opening file: {}, for writing.", wrt_path_string);
+        info!("Opening file for writing: {}", wrt_path_string);
         let mut file = File::create(&wrt_path_string)?;
 
         // Keep track of bytes left to write.
@@ -580,7 +587,17 @@ impl Steganography {
 
         // File writing completed, so save and close the file.
         // No need to manually close as the file will be closed when it goes out of scope.
-        info!("Data written to file successfully: {}", file_name);
+        info!("Data written to file successfully.");
+
+        // Push the filename onto the vector array so that we have a list of all
+        // files written.
+        let file_details = EmbeddedFile {
+            file_name : String::from(wrt_path_string),
+            file_extracted : true,
+            file_coded : false,
+            file_analysed : true,
+        };
+        self.embedded_files.push(file_details);
         Ok(())
     }
 }
