@@ -10,5 +10,5 @@ max_embed_ratio:    0.5
 min_capacity:       1000
 prog_code:          "PICCODER"
 byte_chunk:         50000
-secret_folder:      "./secret"
+secret_folder:      "./secrets"
 thumb_folder:       "./images"
