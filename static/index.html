@@ -28,7 +28,9 @@
 
     <div>
         <p id="processingResults" class="results-text" style="text-align:center;">Upload file for analysis.</p>
-    </div>
+        <!-- Here we'll desplay all the extracted files as thunmnails. -->
+        <!-- The thumbnails will be related to the type of file, ie image thumbnails for images, -->
+        <!-- and other generic thumbnails for other types e.g. text docs, executables etc, -->
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -118,11 +120,8 @@
             return response.json();
         })
         .then(data => {
-            // const resultsElement = document.getElementById('processingResults');
-            // resultsElement.textContent = `${data.status}: ${data.message}`;
-            // resultsElement.className = data.status === 'success' ? 'results-text success' : 'results-text failure';
             const resultsElement = document.getElementById('processingResults');
-            resultsElement.textContent = `File(s) extracted: ${data.extracted}, File(s): ${data.filenames}`;
+            resultsElement.textContent = `File(s) extracted: ${data.extracted}, Duration: ${data.time}`;
 
             // Add coloured border based on coded status.
             if (data.extracted === "True") {

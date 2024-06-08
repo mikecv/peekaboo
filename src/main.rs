@@ -105,7 +105,6 @@ async fn extract(steg: web::Data<Arc<Mutex<Steganography>>>) -> impl Responder {
 
     // Go through steg.embedded_files struct and
     // extrat the 'file_name' element.
-    // Will eventually go into response.
     let saved_files = &steg.embedded_files;
     let mut files_string = String::from("");
     for file in saved_files {
@@ -113,10 +112,12 @@ async fn extract(steg: web::Data<Arc<Mutex<Steganography>>>) -> impl Responder {
     }
 
     // Construct a response based on the extraction result.
-    // <TODO> Need to update the extracted status based on success of function.
     response_data.insert("extracted", "True");
-    response_data.insert("filenames", &files_string);
+    let duration_str = format!("{:?}", steg.extract_duration);
+    response_data.insert("time", &duration_str);
 
+    // ADD THE EXTRACTED FILE IMAGES HERE.
+    
     HttpResponse::Ok().json(response_data)
 }
 

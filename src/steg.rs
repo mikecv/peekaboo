@@ -33,7 +33,7 @@ use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::Path;
 use std::path::PathBuf;
-use std::time::Instant;
+use std::time::{Instant, Duration};
 
 use crate::settings::Settings;
 use crate::SETTINGS;
@@ -69,6 +69,8 @@ pub struct Steganography {
     pub bytes_read: u32,
     pub code_bytes: Vec<u8>,
     pub embed_capacity: u64,
+    pub load_duration: Duration,
+    pub extract_duration: Duration,
     pub embedded_files: Vec<EmbeddedFile>,
 }
 
@@ -101,6 +103,8 @@ impl Steganography {
             bytes_read: 0,
             code_bytes: Vec::with_capacity(0),
             embed_capacity: 0,
+            load_duration: Duration::new(0, 0),
+            extract_duration: Duration::new(0, 0),
             embedded_files: Vec::new(),
         }
     }
@@ -141,7 +145,7 @@ impl Steganography {
 impl Steganography {
     pub fn load_new_file(&mut self, in_file:String) {
         // Initialise timer for function.
-        let start = Instant::now();
+        let load_start = Instant::now();
 
         // Do image intialisatioins to clean up after any
         // successful or failed image loading.
@@ -260,8 +264,8 @@ impl Steganography {
         }
 
         // Determine delta time for function.
-        let duration = start.elapsed();
-        info!("Time for upload: {:?}", duration)
+        self.load_duration = load_start.elapsed();
+        info!("Time for upload: {:?}", self.load_duration)
     }
 }
 
@@ -351,7 +355,7 @@ impl Steganography {
 impl Steganography {
     pub fn extract_data(&mut self, pw:String) {
         // Initialise timer for function.
-        let start = Instant::now();
+        let extract_start = Instant::now();
 
         // If password required then check it.
         if self.pic_has_pw == true {
@@ -370,8 +374,8 @@ impl Steganography {
         self.get_embedded_data();
 
         // Determine delta time for function.
-        let duration = start.elapsed();
-        info!("Time for file(s) extraction: {:?}", duration)
+        self.extract_duration = extract_start.elapsed();
+        info!("Time for file(s) extraction: {:?}", self.extract_duration)
     }
 }
 
