@@ -42,6 +42,7 @@ use crate::SETTINGS;
 // This struct will be included in the main Steganography struct.
 pub struct EmbeddedFile {
     pub file_name: String,
+    pub file_type: String,
     pub file_extracted: bool,
     pub file_coded: bool,
     pub file_analysed: bool,
@@ -597,6 +598,7 @@ impl Steganography {
         // files written.
         let file_details = EmbeddedFile {
             file_name : String::from(wrt_path_string),
+            file_type : String::from("image/png"),
             file_extracted : true,
             file_coded : false,
             file_analysed : true,

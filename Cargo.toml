@@ -11,6 +11,7 @@ log = "0.4"
 log4rs = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
+serde_json = "1.0"
 lazy_static = "1.4"
 image = "0.23"
 ring = "0.16.20"
