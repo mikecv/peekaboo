@@ -11,3 +11,6 @@
 # Ignore image and embedded files.
 /images
 /secrets
+
+# Ignore notes file.
+notes.txt
