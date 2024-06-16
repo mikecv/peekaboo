@@ -10,12 +10,12 @@ section {
 
 div {
 	border: none;
-    text-align: center; /* Ensure all divs have centered text and elements */
+    text-align: center;
     align-items: center;
   }
 
   .center {
-    text-align: center; /* Center the content within this specific div */
+    text-align: center;
 }
 
 h1 {
@@ -54,9 +54,9 @@ p {
 
 .thumbnail {
     display: block;
-    margin: 20px auto;
-    max-width: 400px;
-    max-height: 300px;
+    margin: 10px auto;
+    max-width: 150x;
+    max-height: 150px;
 }
 
 .results-text {
@@ -79,4 +79,44 @@ p {
     padding: 5px;
     display: inline-block;
     margin: 10px auto;
+}
+
+.file-thumbnail {
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+}
+
+.results-thumbnails {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0 auto;
+    padding: 5px;
+}
+
+.results-text {
+    font-size: 1.2em;
+    max-height: 400px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.results-text img.thumbnail {
+    max-width: 100px;
+    max-height: 100px;
+    border: 2px solid transparent;
+}
+
+.results-text.coded img.thumbnail {
+    border-color: green;
+}
+
+.results-text.not-coded img.thumbnail {
+    border-color: red;
 }

@@ -33,7 +33,7 @@ use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::Path;
 use std::path::PathBuf;
-use std::time::Instant;
+use std::time::{Instant, Duration};
 
 use crate::settings::Settings;
 use crate::SETTINGS;
@@ -42,6 +42,7 @@ use crate::SETTINGS;
 // This struct will be included in the main Steganography struct.
 pub struct EmbeddedFile {
     pub file_name: String,
+    pub file_type: String,
     pub file_extracted: bool,
     pub file_coded: bool,
     pub file_analysed: bool,
@@ -69,6 +70,8 @@ pub struct Steganography {
     pub bytes_read: u32,
     pub code_bytes: Vec<u8>,
     pub embed_capacity: u64,
+    pub load_duration: Duration,
+    pub extract_duration: Duration,
     pub embedded_files: Vec<EmbeddedFile>,
 }
 
@@ -101,6 +104,8 @@ impl Steganography {
             bytes_read: 0,
             code_bytes: Vec::with_capacity(0),
             embed_capacity: 0,
+            load_duration: Duration::new(0, 0),
+            extract_duration: Duration::new(0, 0),
             embedded_files: Vec::new(),
         }
     }
@@ -121,6 +126,7 @@ impl Steganography {
         self.pic_height = 0;
         self.pic_col_planes = 0;
         self.embed_capacity = 0;
+        self.embedded_files = Vec::new();
     }
 }
 
@@ -141,7 +147,7 @@ impl Steganography {
 impl Steganography {
     pub fn load_new_file(&mut self, in_file:String) {
         // Initialise timer for function.
-        let start = Instant::now();
+        let load_start = Instant::now();
 
         // Do image intialisatioins to clean up after any
         // successful or failed image loading.
@@ -260,8 +266,8 @@ impl Steganography {
         }
 
         // Determine delta time for function.
-        let duration = start.elapsed();
-        info!("Time for upload: {:?}", duration)
+        self.load_duration = load_start.elapsed();
+        info!("Time for upload: {:?}", self.load_duration)
     }
 }
 
@@ -351,7 +357,7 @@ impl Steganography {
 impl Steganography {
     pub fn extract_data(&mut self, pw:String) {
         // Initialise timer for function.
-        let start = Instant::now();
+        let extract_start = Instant::now();
 
         // If password required then check it.
         if self.pic_has_pw == true {
@@ -370,8 +376,8 @@ impl Steganography {
         self.get_embedded_data();
 
         // Determine delta time for function.
-        let duration = start.elapsed();
-        info!("Time for file(s) extraction: {:?}", duration)
+        self.extract_duration = extract_start.elapsed();
+        info!("Time for file(s) extraction: {:?}", self.extract_duration)
     }
 }
 
@@ -479,7 +485,7 @@ impl Steganography {
                                                 }
                                             }
                                             _ => {
-                                                warn!("Invalid file name length.");
+                                                warn!("Invalid file name.");
                                             }
                                         }
                                     }                       
@@ -493,7 +499,7 @@ impl Steganography {
 
                 }
                 _ => {
-                    warn!("Invalid file name length.");
+                    warn!("Invalid number of files length.");
                 }
             }
         }
@@ -593,6 +599,7 @@ impl Steganography {
         // files written.
         let file_details = EmbeddedFile {
             file_name : String::from(wrt_path_string),
+            file_type : String::from("image/png"),
             file_extracted : true,
             file_coded : false,
             file_analysed : true,

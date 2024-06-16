@@ -28,7 +28,9 @@
 
     <div>
         <p id="processingResults" class="results-text" style="text-align:center;">Upload file for analysis.</p>
-    </div>
+            <!-- Here we'll display all the extracted files as thumbnails. -->
+            <div id="results-text" class="results-thumbnails"></div>
+        </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -106,8 +108,7 @@
             });
         });
 
-    // Event listener for extract button
-    document.getElementById('extractButton').addEventListener('click', function() {
+        document.getElementById('extractButton').addEventListener('click', function() {
         fetch('/extract', {
             method: 'POST'
         })
@@ -118,13 +119,39 @@
             return response.json();
         })
         .then(data => {
-            // const resultsElement = document.getElementById('processingResults');
-            // resultsElement.textContent = `${data.status}: ${data.message}`;
-            // resultsElement.className = data.status === 'success' ? 'results-text success' : 'results-text failure';
             const resultsElement = document.getElementById('processingResults');
-            resultsElement.textContent = `File(s) extracted: ${data.extracted}, File(s): ${data.filenames}`;
+            resultsElement.textContent = `File(s) extracted: ${data.extracted}, Duration: ${data.time}`;
 
-            // Add coloured border based on coded status.
+            const resultsTextDiv = document.getElementById('results-text');
+            resultsTextDiv.innerHTML = ''; // Clear previous results
+
+            const files = JSON.parse(data.files); // Parse the files JSON string
+            files.forEach(file => {
+                const fileDiv = document.createElement('div');
+                fileDiv.classList.add('file-thumbnail');
+
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = file.path;
+                    img.alt = file.name;
+                    img.classList.add('thumbnail');
+                    img.classList.add('border-on'); // Add border class
+                    fileDiv.appendChild(img);
+
+                    // Create and append a paragraph element with the file name
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    fileDiv.appendChild(fileName);
+                } else {
+                    const icon = document.createElement('div');
+                    icon.classList.add('generic-thumbnail');
+                    icon.textContent = file.name;
+                    fileDiv.appendChild(icon);
+                }
+
+                resultsTextDiv.appendChild(fileDiv);
+            });
+
             if (data.extracted === "True") {
                 resultsElement.className = 'results-text coded';
                 extractButton.style.display = 'none';
@@ -137,6 +164,15 @@
         });
     });
 
+    // Function to toggle border on an image
+    function toggleBorder(imgElement, borderOn) {
+        if (borderOn) {
+            imgElement.classList.add('border-on');
+        } else {
+            imgElement.classList.remove('border-on');
+        }
+
+    }
     </script>
 </body>
 </html>

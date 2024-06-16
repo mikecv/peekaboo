@@ -6,12 +6,13 @@ use futures::{StreamExt, TryStreamExt};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fs::File;
+use std::path::Path;
 use std::io::Write;
 use std::io::prelude::*;
 use std::sync::{Arc, Mutex};
 use sanitize_filename::sanitize;
+use actix_files as fs;
 use actix_multipart::Multipart;
-
 use actix_web::{get, post, web, App, HttpServer, HttpResponse, Responder};
 
 use crate::settings::Settings;
@@ -73,17 +74,54 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
 
             // Process the uploaded file with Steganography instance.
             let mut steg = steg.lock().unwrap();
+
+            // *******************************************************************************
+            // Temporary code to generate test data for UI development.
+            // *******************************************************************************
+            // steg.load_new_file(String::from("./images/volleyballs.png"));
+            // let embed_files = vec!["/home/mike/Desktop/TestPics/kittenseyes.png", "/home/mike/Desktop/TestPics/littlecat.jpeg"];
+            // if let Err(err) = steg.embed_files(false, &String::from(""), &embed_files) {
+            //     eprintln!("Error: {}", err);
+            // }
+            // else {
+            //     steg.save_image("/home/mike/Desktop/TestPics/twocatpics_npw.png".to_string())
+            // }
+            // *******************************************************************************
+            // steg.load_new_file(String::from("./images/volleyballs.png"));
+            // let embed_files = vec!["/home/mike/Desktop/TestPics/kittenseyes.png",
+            //                         "/home/mike/Desktop/TestPics/littlecat.jpeg",
+            //                         "/home/mike/Desktop/TestPics/lotsofkittens.jpeg"];
+            // if let Err(err) = steg.embed_files(false, &String::from(""), &embed_files) {
+            //     eprintln!("Error: {}", err);
+            // }
+            // else {
+            //     steg.save_image("/home/mike/Desktop/TestPics/threecatpics_npw.png".to_string())
+            // }
+            // *******************************************************************************
+            // steg.load_new_file(String::from("./images/volleyballs.png"));
+            // let embed_files = vec!["/home/mike/Desktop/TestPics/kittenseyes.png",
+            //                         "/home/mike/Desktop/TestPics/littlecat.jpeg",
+            //                         "/home/mike/Desktop/TestPics/lotsofkittens.jpeg",
+            //                         "/home/mike/Desktop/TestPics/upsidedownkitten.jpeg"];
+            // if let Err(err) = steg.embed_files(true, &String::from("michaek"), &embed_files) {
+            //     eprintln!("Error: {}", err);
+            // }
+            // else {
+            //     steg.save_image("/home/mike/Desktop/TestPics/fourcatpics_pw.png".to_string())
+            // }
+            // *******************************************************************************
+        
             // Load a file for analysis.
             // This includes whether or not it is coded.
             steg.load_new_file(filepath_clone);
 
             // Construct image file analysis results for display to the user.
-            response_data.insert("coded", "False");
-            response_data.insert("password", "False");
+            response_data.insert("coded", "False".to_string());
+            response_data.insert("password", "False".to_string());
             if steg.pic_coded == true {
-                response_data.insert("coded", "True");
+                response_data.insert("coded", "True".to_string());
                 if steg.pic_has_pw == true {
-                    response_data.insert("password", "True");
+                    response_data.insert("password", "True".to_string());
                 }
             }
         }
@@ -104,19 +142,36 @@ async fn extract(steg: web::Data<Arc<Mutex<Steganography>>>) -> impl Responder {
     steg.extract_data(String::from(""));
 
     // Go through steg.embedded_files struct and
-    // extrat the 'file_name' element.
-    // Will eventually go into response.
+    // extrat the 'file_name' and 'file_type' elements.
     let saved_files = &steg.embedded_files;
-    let mut files_string = String::from("");
+    let mut files = Vec::new();
     for file in saved_files {
-        files_string.push_str(&file.file_name);
+        // Strip out the path to get just the file name
+        let file_name = Path::new(&file.file_name)
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
+        let file_path = format!("secrets/{}", file_name);
+        let file_type = file.file_type.clone();
+
+        files.push(HashMap::from([
+            ("name", file_name.clone()),
+            ("path", file_path.clone()),
+            ("type", file_type.clone()),
+        ]));
     }
 
     // Construct a response based on the extraction result.
-    // <TODO> Need to update the extracted status based on success of function.
-    response_data.insert("extracted", "True");
-    response_data.insert("filenames", &files_string);
+    response_data.insert("extracted", "True".to_string());
+    let duration_str = format!("{:?}", steg.extract_duration);
+    response_data.insert("time", duration_str);
 
+    // Serialize files to a JSON string and insert into response_data.
+    let files_json = serde_json::to_string(&files).unwrap();
+    response_data.insert("files", files_json.clone());
+    
     HttpResponse::Ok().json(response_data)
 }
 
@@ -135,9 +190,10 @@ async fn main() -> std::io::Result<()> {
     let img_steg = Arc::new(Mutex::new(Steganography::init()));
 
     // Create and start web service.
-    HttpServer::new(move || {  // Use the `move` keyword to capture `img_steg`
+    HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(img_steg.clone()))
+            .service(fs::Files::new("/secrets", "./secrets").show_files_listing())
             .service(intro)
             .service(upload)
             .service(extract)
