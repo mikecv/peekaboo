@@ -126,6 +126,7 @@ impl Steganography {
         self.pic_height = 0;
         self.pic_col_planes = 0;
         self.embed_capacity = 0;
+        self.embedded_files = Vec::new();
     }
 }
 
@@ -484,7 +485,7 @@ impl Steganography {
                                                 }
                                             }
                                             _ => {
-                                                warn!("Invalid file name length.");
+                                                warn!("Invalid file name.");
                                             }
                                         }
                                     }                       
@@ -498,7 +499,7 @@ impl Steganography {
 
                 }
                 _ => {
-                    warn!("Invalid file name length.");
+                    warn!("Invalid number of files length.");
                 }
             }
         }

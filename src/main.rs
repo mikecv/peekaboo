@@ -74,6 +74,43 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
 
             // Process the uploaded file with Steganography instance.
             let mut steg = steg.lock().unwrap();
+
+            // *******************************************************************************
+            // Temporary code to generate test data for UI development.
+            // *******************************************************************************
+            // steg.load_new_file(String::from("./images/volleyballs.png"));
+            // let embed_files = vec!["/home/mike/Desktop/TestPics/kittenseyes.png", "/home/mike/Desktop/TestPics/littlecat.jpeg"];
+            // if let Err(err) = steg.embed_files(false, &String::from(""), &embed_files) {
+            //     eprintln!("Error: {}", err);
+            // }
+            // else {
+            //     steg.save_image("/home/mike/Desktop/TestPics/twocatpics_npw.png".to_string())
+            // }
+            // *******************************************************************************
+            // steg.load_new_file(String::from("./images/volleyballs.png"));
+            // let embed_files = vec!["/home/mike/Desktop/TestPics/kittenseyes.png",
+            //                         "/home/mike/Desktop/TestPics/littlecat.jpeg",
+            //                         "/home/mike/Desktop/TestPics/lotsofkittens.jpeg"];
+            // if let Err(err) = steg.embed_files(false, &String::from(""), &embed_files) {
+            //     eprintln!("Error: {}", err);
+            // }
+            // else {
+            //     steg.save_image("/home/mike/Desktop/TestPics/threecatpics_npw.png".to_string())
+            // }
+            // *******************************************************************************
+            // steg.load_new_file(String::from("./images/volleyballs.png"));
+            // let embed_files = vec!["/home/mike/Desktop/TestPics/kittenseyes.png",
+            //                         "/home/mike/Desktop/TestPics/littlecat.jpeg",
+            //                         "/home/mike/Desktop/TestPics/lotsofkittens.jpeg",
+            //                         "/home/mike/Desktop/TestPics/upsidedownkitten.jpeg"];
+            // if let Err(err) = steg.embed_files(true, &String::from("michaek"), &embed_files) {
+            //     eprintln!("Error: {}", err);
+            // }
+            // else {
+            //     steg.save_image("/home/mike/Desktop/TestPics/fourcatpics_pw.png".to_string())
+            // }
+            // *******************************************************************************
+        
             // Load a file for analysis.
             // This includes whether or not it is coded.
             steg.load_new_file(filepath_clone);
@@ -153,7 +190,7 @@ async fn main() -> std::io::Result<()> {
     let img_steg = Arc::new(Mutex::new(Steganography::init()));
 
     // Create and start web service.
-    HttpServer::new(move || {  // Use the `move` keyword to capture `img_steg`
+    HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(img_steg.clone()))
             .service(fs::Files::new("/secrets", "./secrets").show_files_listing())

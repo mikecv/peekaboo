@@ -10,12 +10,12 @@ section {
 
 div {
 	border: none;
-    text-align: center; /* Ensure all divs have centered text and elements */
+    text-align: center;
     align-items: center;
   }
 
   .center {
-    text-align: center; /* Center the content within this specific div */
+    text-align: center;
 }
 
 h1 {
@@ -55,7 +55,7 @@ p {
 .thumbnail {
     display: block;
     margin: 10px auto;
-    max-width: 200px;
+    max-width: 150x;
     max-height: 150px;
 }
 
@@ -87,39 +87,36 @@ p {
     text-align: center;
 }
 
-.generic-thumbnail {
-    display: inline-block;
-    width: 100px;
-    height: 100px;
-    background-color: #ccc;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 100px;
-    font-size: 14px;
-    color: #333;
-    border-radius: 4px;
+.results-thumbnails {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0 auto;
+    padding: 5px;
 }
 
 .results-text {
     font-size: 1.2em;
-    max-height: 400px; /* Set max-height to make the div scrollable */
-    overflow-y: auto;
+    max-height: 400px;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* Center the thumbnails */
+    justify-content: center;
     align-items: center;
 }
 
 .results-text img.thumbnail {
     max-width: 100px;
     max-height: 100px;
-    border: 2px solid transparent; /* Default border */
+    border: 2px solid transparent;
 }
 
 .results-text.coded img.thumbnail {
-    border-color: green; /* Border color for coded thumbnails */
+    border-color: green;
 }
 
 .results-text.not-coded img.thumbnail {
-    border-color: red; /* Border color for not coded thumbnails */
+    border-color: red;
 }
