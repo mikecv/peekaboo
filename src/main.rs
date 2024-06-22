@@ -131,22 +131,27 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
 }
 
 #[post("/extract")]
-async fn extract(steg: web::Data<Arc<Mutex<Steganography>>>) -> impl Responder {
-    // Get steg instance in scope.
+async fn extract(
+    form: web::Form<HashMap<String, String>>,
+    steg: web::Data<Arc<Mutex<Steganography>>>,
+) -> impl Responder {
+
+    // User password received from UI.
+    let password = form.get("password").cloned().unwrap_or_default(); 
+
+    // Get access to steg instance.
     let mut steg = steg.lock().unwrap();
 
-    // Define the type of response_data explicitly.
+    // Initialise vector of extracted files.
     let mut response_data = HashMap::new();
 
-    // Perform extraction of embedded files.
-    steg.extract_data(String::from(""));
+    // Perform extraction of current uploaded file.
+    steg.extract_data(password.clone());
 
-    // Go through steg.embedded_files struct and
-    // extrat the 'file_name' and 'file_type' elements.
+    // Get vector of extract files to display on UI.
     let saved_files = &steg.embedded_files;
     let mut files = Vec::new();
     for file in saved_files {
-        // Strip out the path to get just the file name
         let file_name = Path::new(&file.file_name)
             .file_name()
             .unwrap()
@@ -163,15 +168,13 @@ async fn extract(steg: web::Data<Arc<Mutex<Steganography>>>) -> impl Responder {
         ]));
     }
 
-    // Construct a response based on the extraction result.
+    // Respond with extraction status to display on UI.
     response_data.insert("extracted", "True".to_string());
     let duration_str = format!("{:?}", steg.extract_duration);
     response_data.insert("time", duration_str);
 
-    // Serialize files to a JSON string and insert into response_data.
     let files_json = serde_json::to_string(&files).unwrap();
     response_data.insert("files", files_json.clone());
-    
     HttpResponse::Ok().json(response_data)
 }
 
