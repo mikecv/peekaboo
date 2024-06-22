@@ -10,6 +10,7 @@
 <body>
     <h1>Peek-A-Boo</h1>
     <p style="text-align:center;">An application of Steganography as applied to digital images.</p>
+    <p style="text-align:center;">Help for using this application can be found <a href="/static/peekaboo-help.html" target="_blank">here</a>.</p>
 
     <div class="center">
         <p style="text-align:center;">
@@ -22,20 +23,37 @@
             <button id="extractButton" class="custom-upload" style="display: none;">Extract</button>
         </p>
     </div>
-        <p style="text-align:center;">
-            <img id="thumbnail" class="thumbnail" src="" alt="Image thumbnail will appear here" style="display:none;">
-        </p>
+    <p style="text-align:center;">
+        <img id="thumbnail" class="thumbnail" src="" alt="Browsed image thumbnail will appear here" style="display:none;">
+    </p>
 
     <div>
         <p id="processingResults" class="results-text" style="text-align:center;">Upload file for analysis.</p>
-            <!-- Here we'll display all the extracted files as thumbnails. -->
-            <div id="results-text" class="results-thumbnails"></div>
+        <!-- Here we'll display all the extracted files as thumbnails. -->
+        <div id="results-text" class="results-thumbnails"></div>
+    </div>
+
+    <!-- Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Enter Password:</p>
+            <input type="password" id="passwordInput">
+            <button id="passwordSubmitButton">Submit</button>
         </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('imageUpload').value = '';
         });
+
+        function clearThumbnails() {
+            const resultsTextDiv = document.getElementById('results-text');
+            resultsTextDiv.innerHTML = '';
+        }
+
+        let requiresPassword = false;
 
         document.getElementById('imageUpload').addEventListener('change', function(event) {
             const file = event.target.files[0];
@@ -49,6 +67,7 @@
             resultsElement.className = 'results-text';
             uploadButton.style.display = 'none';
             extractButton.style.display = 'none';
+            clearThumbnails();
 
             if (file) {
                 fileLabel.textContent = file.name;
@@ -95,6 +114,8 @@
                 const resultsElement = document.getElementById('processingResults');
                 resultsElement.textContent = `File coded: ${data.coded}, Password protected: ${data.password}`;
                 
+                requiresPassword = data.password === "True";
+
                 // Add coloured border based on coded status.
                 if (data.coded === "True") {
                     resultsElement.className = 'results-text coded';
@@ -109,70 +130,98 @@
         });
 
         document.getElementById('extractButton').addEventListener('click', function() {
-        fetch('/extract', {
-            method: 'POST'
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to extract data.');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const resultsElement = document.getElementById('processingResults');
-            resultsElement.textContent = `File(s) extracted: ${data.extracted}, Duration: ${data.time}`;
-
-            const resultsTextDiv = document.getElementById('results-text');
-            resultsTextDiv.innerHTML = ''; // Clear previous results
-
-            const files = JSON.parse(data.files); // Parse the files JSON string
-            files.forEach(file => {
-                const fileDiv = document.createElement('div');
-                fileDiv.classList.add('file-thumbnail');
-
-                if (file.type.startsWith('image/')) {
-                    const img = document.createElement('img');
-                    img.src = file.path;
-                    img.alt = file.name;
-                    img.classList.add('thumbnail');
-                    img.classList.add('border-on'); // Add border class
-                    fileDiv.appendChild(img);
-
-                    // Create and append a paragraph element with the file name
-                    const fileName = document.createElement('p');
-                    fileName.textContent = file.name;
-                    fileDiv.appendChild(fileName);
-                } else {
-                    const icon = document.createElement('div');
-                    icon.classList.add('generic-thumbnail');
-                    icon.textContent = file.name;
-                    fileDiv.appendChild(icon);
-                }
-
-                resultsTextDiv.appendChild(fileDiv);
-            });
-
-            if (data.extracted === "True") {
-                resultsElement.className = 'results-text coded';
-                extractButton.style.display = 'none';
+            if (requiresPassword) {
+                // Display password modal dialog.
+                const modal = document.getElementById('passwordModal');
+                modal.style.display = 'block';
             } else {
-                resultsElement.className = 'results-text not-coded';
+                performExtraction();
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
         });
-    });
 
-    // Function to toggle border on an image
-    function toggleBorder(imgElement, borderOn) {
-        if (borderOn) {
-            imgElement.classList.add('border-on');
-        } else {
-            imgElement.classList.remove('border-on');
+        document.getElementById('passwordSubmitButton').addEventListener('click', function() {
+            const password = document.getElementById('passwordInput').value;
+            const modal = document.getElementById('passwordModal');
+            modal.style.display = 'none';
+            performExtraction(password);
+        });
+
+        function performExtraction(password = '') {
+            const formData = new FormData();
+            formData.append('password', password);
+
+            fetch('/extract', {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to extract data.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const resultsElement = document.getElementById('processingResults');
+                resultsElement.textContent = `File(s) extracted: ${data.extracted}, Duration: ${data.time}`;
+
+                const resultsTextDiv = document.getElementById('results-text');
+                resultsTextDiv.innerHTML = '';
+
+                const files = JSON.parse(data.files);
+                files.forEach(file => {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.classList.add('file-thumbnail');
+
+                    if (file.type.startsWith('image/')) {
+                        const img = document.createElement('img');
+                        img.src = file.path;
+                        img.alt = file.name;
+                        img.classList.add('thumbnail');
+                        img.classList.add('border-on');
+                        fileDiv.appendChild(img);
+
+                        // Create and append a paragraph element with the file name.
+                        const fileName = document.createElement('p');
+                        fileName.textContent = file.name;
+                        fileName.classList.add('thumbnail-filename');
+                        fileDiv.appendChild(fileName);
+                    } else {
+                        const icon = document.createElement('div');
+                        icon.classList.add('generic-thumbnail');
+                        icon.textContent = file.name;
+                        fileName.classList.add('thumbnail-filename');
+                        fileDiv.appendChild(icon);
+                    }
+
+                    resultsTextDiv.appendChild(fileDiv);
+                });
+
+                if (data.extracted === "True") {
+                    resultsElement.className = 'results-text coded';
+                    extractButton.style.display = 'none';
+                } else {
+                    resultsElement.className = 'results-text not-coded';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
 
-    }
+        // Close the modal when the user commits.
+        document.querySelector('.close').addEventListener('click', function() {
+            const modal = document.getElementById('passwordModal');
+            modal.style.display = 'none';
+        });
+
+        // Function to toggle border on an image.
+        function toggleBorder(imgElement, borderOn) {
+            if (borderOn) {
+                imgElement.classList.add('border-on');
+            } else {
+                imgElement.classList.remove('border-on');
+            }
+        }
     </script>
 </body>
 </html>
