@@ -18,11 +18,12 @@
             <input type="file" id="imageUpload" accept="image/png" style="display: none;">
             <span id="fileLabel"></span>
         </p>
-        <p style="text-align:center;">
+        <p class="button-group" style="text-align:center;">
             <button id="uploadButton" class="custom-upload" style="display: none;">Upload</button>
+            <button id="embedButton" class="custom-upload" style="display: none;">Embed</button>
             <button id="extractButton" class="custom-upload" style="display: none;">Extract</button>
         </p>
-    </div>
+            </div>
     <p style="text-align:center;">
         <img id="thumbnail" class="thumbnail" src="" alt="Browsed image thumbnail will appear here" style="display:none;">
     </p>
@@ -61,12 +62,14 @@
             const uploadButton = document.getElementById('uploadButton');
             const resultsElement = document.getElementById('processingResults');
             const extractButton = document.getElementById('extractButton');
+            const embedButton = document.getElementById('embedButton');
 
             // Clear previous results and buttons.
             resultsElement.textContent = 'Upload file for analysis.';
             resultsElement.className = 'results-text';
             uploadButton.style.display = 'none';
             extractButton.style.display = 'none';
+            embedButton.style.display = 'none';
             clearThumbnails();
 
             if (file) {
@@ -95,6 +98,7 @@
             const file = fileInput.files[0];
             const uploadButton = document.getElementById('uploadButton');
             const extractButton = document.getElementById('extractButton');
+            const embedButton = document.getElementById('embedButton');
             const formData = new FormData();
 
             formData.append('file', file);
@@ -120,8 +124,10 @@
                 if (data.coded === "True") {
                     resultsElement.className = 'results-text coded';
                     extractButton.style.display = 'block';
+                    embedButton.style.display = 'block';
                 } else {
                     resultsElement.className = 'results-text not-coded';
+                    embedButton.style.display = 'block';
                 }
             })
             .catch(error => {
@@ -199,6 +205,7 @@
                 if (data.extracted === "True") {
                     resultsElement.className = 'results-text coded';
                     extractButton.style.display = 'none';
+                    embedButton.style.display = 'none';
                 } else {
                     resultsElement.className = 'results-text not-coded';
                 }

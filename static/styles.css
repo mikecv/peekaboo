@@ -27,6 +27,17 @@ p {
     font-size: 1.2em;
 }
 
+.button-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.button-group .custom-upload {
+    margin: 0;
+}
+
 .custom-upload {
     margin: 0 auto;
     display: inline-block;
