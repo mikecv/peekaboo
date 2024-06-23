@@ -118,6 +118,7 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
             // Construct image file analysis results for display to the user.
             response_data.insert("coded", "False".to_string());
             response_data.insert("password", "False".to_string());
+            response_data.insert("capacity", steg.embed_capacity.to_string());
             if steg.pic_coded == true {
                 response_data.insert("coded", "True".to_string());
                 if steg.pic_has_pw == true {
@@ -146,35 +147,71 @@ async fn extract(
     let mut response_data = HashMap::new();
 
     // Perform extraction of current uploaded file.
-    steg.extract_data(password.clone());
+    // Check status of extaction
+    match steg.extract_data(password.clone()) {
+        // Extraction completed successfully.
+        Ok(_) => {
+            // Extraction completed successfully.
+            // Get vector of extract files to display on UI.
+            let saved_files = &steg.embedded_files;
+            let mut files = Vec::new();
+            for file in saved_files {
+                let file_name = Path::new(&file.file_name)
+                    .file_name()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
+                let file_path = format!("secrets/{}", file_name);
+                let file_type = file.file_type.clone();
 
-    // Get vector of extract files to display on UI.
-    let saved_files = &steg.embedded_files;
-    let mut files = Vec::new();
-    for file in saved_files {
-        let file_name = Path::new(&file.file_name)
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string();
-        let file_path = format!("secrets/{}", file_name);
-        let file_type = file.file_type.clone();
+                files.push(HashMap::from([
+                    ("name", file_name.clone()),
+                    ("path", file_path.clone()),
+                    ("type", file_type.clone()),
+                ]));
+            }
 
-        files.push(HashMap::from([
-            ("name", file_name.clone()),
-            ("path", file_path.clone()),
-            ("type", file_type.clone()),
-        ]));
+            // Respond with extraction status to display on UI.
+            response_data.insert("extracted", "True".to_string());
+            let duration_str = format!("{:?}", steg.extract_duration);
+            response_data.insert("time", duration_str);
+
+            // Respond with names of extracted files.
+            let files_json = serde_json::to_string(&files).unwrap();
+            response_data.insert("files", files_json.clone());
+        }
+        // Extraction failed with error result.
+        Err(_e) => {
+            // Respond with failed extraction status to display on UI.
+            response_data.insert("extracted", "False".to_string());
+            let duration_str = format!("{:?}", steg.extract_duration);
+            response_data.insert("time", duration_str);
+        }
     }
+    HttpResponse::Ok().json(response_data)
+}
 
-    // Respond with extraction status to display on UI.
-    response_data.insert("extracted", "True".to_string());
-    let duration_str = format!("{:?}", steg.extract_duration);
+#[post("/embed")]
+async fn embed(
+    form: web::Form<HashMap<String, String>>,
+    steg: web::Data<Arc<Mutex<Steganography>>>,
+) -> impl Responder {
+
+    // User password for embedding received from UI.
+    let _password = form.get("password").cloned().unwrap_or_default(); 
+
+    // Get access to steg instance.
+    let steg = steg.lock().unwrap();
+
+    // Initialise vector of files.
+    let mut response_data = HashMap::new();
+
+    // Respond with embedding status to display on UI.
+    response_data.insert("embedded", "True".to_string());
+    let duration_str = format!("{:?}", steg.embed_duration);
     response_data.insert("time", duration_str);
 
-    let files_json = serde_json::to_string(&files).unwrap();
-    response_data.insert("files", files_json.clone());
     HttpResponse::Ok().json(response_data)
 }
 

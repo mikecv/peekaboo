@@ -116,7 +116,9 @@
             .then(data => {
                 uploadButton.style.display = 'none';
                 const resultsElement = document.getElementById('processingResults');
-                resultsElement.textContent = `File coded: ${data.coded}, Password protected: ${data.password}`;
+                resultsElement.textContent = `File coded: ${data.coded}, 
+                                                Password protected: ${data.password},
+                                                Embedding capacity: ${data.capacity} bytes`;
                 
                 requiresPassword = data.password === "True";
 

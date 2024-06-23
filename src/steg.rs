@@ -29,6 +29,7 @@ extern crate ring;
 use log::{error, info, warn};
 use image::{DynamicImage, GenericImageView};
 use ring::digest;
+use std::fmt;
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::Path;
@@ -37,6 +38,23 @@ use std::time::{Instant, Duration};
 
 use crate::settings::Settings;
 use crate::SETTINGS;
+
+// Error result enum.
+#[derive(Debug)]
+pub enum SteganographyError {
+    IncorrectPassword,
+}
+
+// Display of Steganography specific errors.
+impl fmt::Display for SteganographyError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            SteganographyError::IncorrectPassword => write!(f, "Incorrect password provided."),
+        }
+    }
+}
+
+impl std::error::Error for SteganographyError {}
 
 // Struct to hold details about files embedded in an image.
 // This struct will be included in the main Steganography struct.
@@ -72,6 +90,7 @@ pub struct Steganography {
     pub embed_capacity: u64,
     pub load_duration: Duration,
     pub extract_duration: Duration,
+    pub embed_duration: Duration,
     pub embedded_files: Vec<EmbeddedFile>,
 }
 
@@ -106,6 +125,7 @@ impl Steganography {
             embed_capacity: 0,
             load_duration: Duration::new(0, 0),
             extract_duration: Duration::new(0, 0),
+            embed_duration: Duration::new(0, 0),
             embedded_files: Vec::new(),
         }
     }
@@ -205,7 +225,7 @@ impl Steganography {
                 info!("Image loaded with width: {}, height: {}", self.pic_width, self.pic_height);
 
                 // Need to check if colour format is acceptable.
-                // Need 3 color planes.
+                // Need 3 colour planes.
                 let cols = image.color();
                 match cols {
                     // Even though only writing to rgb planes for now,
@@ -355,7 +375,7 @@ impl Steganography {
 // Password string required, empty string if no
 // password required.
 impl Steganography {
-    pub fn extract_data(&mut self, pw:String) {
+    pub fn extract_data(&mut self, pw:String) -> Result<(), SteganographyError> {
         // Initialise timer for function.
         let extract_start = Instant::now();
 
@@ -367,8 +387,11 @@ impl Steganography {
                 info!("Correct password provided.");
             }
             else {
+                // Determine delta time for function, albeit failed.
+                self.extract_duration = extract_start.elapsed();
+                info!("Time for file(s) extraction: {:?}", self.extract_duration);
                 info!("Correct password NOT provided.");
-                return;
+                return Err(SteganographyError::IncorrectPassword);
             }
         }
         // Either password not required or correct password entered.
@@ -377,7 +400,9 @@ impl Steganography {
 
         // Determine delta time for function.
         self.extract_duration = extract_start.elapsed();
-        info!("Time for file(s) extraction: {:?}", self.extract_duration)
+        info!("Time for file(s) extraction: {:?}", self.extract_duration);
+
+        Ok(())
     }
 }
 
@@ -612,6 +637,9 @@ impl Steganography {
 // Method to embed one or more files into a loaded image.
 impl Steganography {
     pub fn embed_files(&mut self, pw:bool, pw_str:&str, files_to_embed:&[&str]) -> io::Result<()> {
+        // Initialise timer for function.
+        let embed_start = Instant::now();
+
         // Don't need to initialise image parameters as we require
         // a loaded image to embed files into.
         if self.img_to_proc == true {
@@ -663,10 +691,20 @@ impl Steganography {
                     }
                 }
             }
+
+            // Determine delta time for function.
+            self.embed_duration = embed_start.elapsed();
+            info!("Time to embed file(s): {:?}", self.embed_duration);
+
             Ok(())
         }
         else {
             info!("No files to process.");
+
+            // Determine delta time for function.
+            self.embed_duration = embed_start.elapsed();
+            info!("Time to embed file(s): {:?}", self.embed_duration);
+ 
             Ok(())
         }
     }
