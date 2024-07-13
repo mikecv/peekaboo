@@ -9,6 +9,11 @@
 </head>
 <body>
     <h1>Peek-A-Boo</h1>
+
+    <div class="overlay" id="overlay">
+        <div class="spinner"></div>
+    </div>
+
     <p style="text-align:center;">An application of Steganography as applied to digital images.</p>
     <p style="text-align:center;">Help for using this application can be found <a href="/static/peekaboo-help.html" target="_blank">here</a>.</p>
 
@@ -23,15 +28,33 @@
             <button id="embedButton" class="custom-upload" style="display: none;">Embed</button>
             <button id="extractButton" class="custom-upload" style="display: none;">Extract</button>
         </p>
-            </div>
+    </div>
+
     <p style="text-align:center;">
         <img id="thumbnail" class="thumbnail" src="" alt="Browsed image thumbnail will appear here" style="display:none;">
     </p>
 
     <div>
-        <p id="processingResults" class="results-text" style="text-align:center;">Upload file for analysis.</p>
-        <!-- Here we'll display all the extracted files as thumbnails. -->
+        <p id="processingResults" class="results-text" style="text-align:center;"></p>
         <div id="results-text" class="results-thumbnails"></div>
+    </div>
+
+    <!-- Embed Section -->
+    <div id="embedSection" style="display:none;">
+        <label for="fileEmbed" class="custom-upload">Browse for Files to Embed</label>
+        <input type="file" id="fileEmbed" multiple style="display: none;">
+        <ul id="fileEmbedList"></ul>
+        <button id="embedSubmitButton" class="custom-upload">Submit</button>
+    </div>
+
+    <!-- Password Modal for Embedding -->
+    <div id="embedPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Enter Password:</p>
+            <input type="password" id="embedPasswordInput">
+            <button id="embedPasswordSubmitButton">Submit</button>
+        </div>
     </div>
 
     <!-- Password Modal -->
@@ -45,32 +68,54 @@
     </div>
 
     <script>
+        // Function to display wait spinner.
+        function showSpinner() {
+            console.log("Showing spinner...");
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        // Function to hide wait spinner.
+        function hideSpinner() {
+            console.log("Hiding spinner...");
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        // Initialise value of image file browsed.
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("Listening for image browsing.");
             document.getElementById('imageUpload').value = '';
         });
 
+        // Function to clear the thumbnails previously displayed.
         function clearThumbnails() {
+            console.log("Clearing any result thumbnails.");
             const resultsTextDiv = document.getElementById('results-text');
             resultsTextDiv.innerHTML = '';
         }
 
         let requiresPassword = false;
 
+        // Function to clear the processing results.
+        function clearProcessingResults() {
+            const resultsElement = document.getElementById('processingResults');
+            resultsElement.textContent = '';
+            resultsElement.className = 'results-text';
+}
+        // Perform image uploading.
         document.getElementById('imageUpload').addEventListener('change', function(event) {
+            console.log("Request to upload the browsed image.");
             const file = event.target.files[0];
             const fileLabel = document.getElementById('fileLabel');
             const uploadButton = document.getElementById('uploadButton');
-            const resultsElement = document.getElementById('processingResults');
             const extractButton = document.getElementById('extractButton');
             const embedButton = document.getElementById('embedButton');
 
-            // Clear previous results and buttons.
-            resultsElement.textContent = 'Upload file for analysis.';
-            resultsElement.className = 'results-text';
+            console.log("Hiding upload, extract, and embed buttons.");
             uploadButton.style.display = 'none';
             extractButton.style.display = 'none';
             embedButton.style.display = 'none';
             clearThumbnails();
+            clearProcessingResults();
 
             if (file) {
                 fileLabel.textContent = file.name;
@@ -80,20 +125,25 @@
                         const img = document.getElementById('thumbnail');
                         img.src = e.target.result;
                         img.style.display = 'block';
+                        console.log("Displaying upload button for valid browsed image.");
                         uploadButton.style.display = 'block';
                     }
                     reader.readAsDataURL(file);
                 } else {
                     alert('Please select a PNG image.');
+                    console.log("Hiding upload button for invalid browsed image.");
                     uploadButton.style.display = 'none';
                 }
             } else {
                 fileLabel.textContent = 'No file selected';
+                console.log("Hiding upload button as no browsed image.");
                 uploadButton.style.display = 'none';
             }
         });
 
+        // Event listener for Upload button, and processing.
         document.getElementById('uploadButton').addEventListener('click', function() {
+            console.log("Request to upload the browsed image.");
             const fileInput = document.getElementById('imageUpload');
             const file = fileInput.files[0];
             const uploadButton = document.getElementById('uploadButton');
@@ -103,6 +153,7 @@
 
             formData.append('file', file);
 
+            console.log("Posting to /upload endpoint.");
             fetch('/upload', {
                 method: 'POST',
                 body: formData
@@ -111,18 +162,20 @@
                 if (!response.ok) {
                     throw new Error('Failed to upload file.');
                 }
+                console.log("Upload of browsed file successful.");
                 return response.json();
             })
             .then(data => {
+                console.log("Hiding upload button as already uploaded.");
                 uploadButton.style.display = 'none';
                 const resultsElement = document.getElementById('processingResults');
+                console.log("Displaying results from /upload endpoint.");
                 resultsElement.textContent = `File coded: ${data.coded}, 
                                                 Password protected: ${data.password},
                                                 Embedding capacity: ${data.capacity} bytes`;
                 
                 requiresPassword = data.password === "True";
 
-                // Add coloured border based on coded status.
                 if (data.coded === "True") {
                     resultsElement.className = 'results-text coded';
                     extractButton.style.display = 'block';
@@ -134,6 +187,133 @@
             })
             .catch(error => {
                 console.error('Error:', error);
+            });
+        });
+
+        // Event listener for Embed images button.
+        document.getElementById('embedButton').addEventListener('click', function() {
+            console.log("Request to embed files into uploaded image.");
+            const embedSection = document.getElementById('embedSection');
+            embedSection.style.display = 'block';
+        });
+
+        // Event listener for files to embed browser.
+        document.getElementById('fileEmbed').addEventListener('change', function(event) {
+            console.log("Browsing for files to embed into uploaded image.");
+            const files = event.target.files;
+            const fileEmbedList = document.getElementById('fileEmbedList');
+            fileEmbedList.innerHTML = '';
+
+            // Get file to imbed into list.
+            for (let i = 0; i < files.length; i++) {
+                const li = document.createElement('li');
+                li.textContent = files[i].name;
+                fileEmbedList.appendChild(li);
+            }
+
+            console.log("File list updated from user selection.", files);
+        });
+
+        // Event listener for commit to files to embed.
+        document.querySelector('label[for="fileEmbed"]').addEventListener('click', function() {
+            console.log("Committing files for embedding..");
+            document.getElementById('fileEmbed').click();
+        });
+
+        // Event listener for embed files button.
+        document.getElementById('embedSubmitButton').addEventListener('click', function() {
+            const embedFiles = document.getElementById('fileEmbed').files;
+            if (embedFiles.length === 0) {
+                console.log("No files selected to embed.");
+                alert('Please select at least one file to embed.');
+                return;
+            }
+
+            console.log("File list created for user selection: ", embedFiles);
+
+            // Display a modal dialog to enter a password (blank if not required).
+            console.log("Getting embed password.");
+            const modal = document.getElementById('embedPasswordModal');
+            modal.style.display = 'block';
+        });
+
+        document.getElementById('embedPasswordSubmitButton').addEventListener('click', function() {
+            // Show the progress spinner.
+            showSpinner();
+ 
+            console.log("Embed files submit button pressed.");
+            const password = document.getElementById('embedPasswordInput').value;
+            const modal = document.getElementById('embedPasswordModal');
+            modal.style.display = 'none';
+
+            console.log("Calling function to submit files for embedding.");
+            performEmbedding(password);
+        });
+
+        function performEmbedding(password = '') {
+            const embedFiles = document.getElementById('fileEmbed').files;
+            const formData = new FormData();
+
+            console.log("Inside function to post to embedding endpoint.");
+
+            for (let i = 0; i < embedFiles.length; i++) {
+                formData.append('files', embedFiles[i]);
+                
+                console.log("Appending file to form data: ", embedFiles[i]);
+            }
+
+            formData.append('password', password);
+
+            console.log("Appending password to form data: ", password);
+
+            console.log("Posting to /embed endpoint.");
+            fetch('/embed', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to embed data.');
+                }
+                // Hide the progress spinner.
+                hideSpinner();
+
+                return response.json();
+            })
+            .then(data => {
+                // Hide the progress spinner.
+                hideSpinner();
+
+                const resultsElement = document.getElementById('processingResults');
+                resultsElement.textContent = `File(s) embedded: ${data.embedded}, Duration: ${data.time}`;
+
+                if (data.thumbnail) {
+                    const thumbnail = document.getElementById('thumbnail');
+                    thumbnail.src = data.thumbnail;  // Set the thumbnail URL
+                    thumbnail.style.display = 'block';
+                } else {
+                    console.error('Thumbnail URL is missing or invalid');
+                }
+
+                // Clear the embed section.
+                document.getElementById('fileEmbedList').innerHTML = '';
+                document.getElementById('embedSection').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+
+                // Hide the progress spinner.
+                hideSpinner();
+            });
+
+            // Hide the progress spinner.
+            hideSpinner();
+        }
+
+        document.querySelectorAll('.close').forEach(closeButton => {
+            closeButton.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                modal.style.display = 'none';
             });
         });
 
@@ -155,6 +335,9 @@
         });
 
         function performExtraction(password = '') {
+            // Show the progress spinner.
+            showSpinner();
+
             const formData = new FormData();
             formData.append('password', password);
 
@@ -166,6 +349,9 @@
                 if (!response.ok) {
                     throw new Error('Failed to extract data.');
                 }
+
+                // Hide the progress spinner.
+                hideSpinner();
                 return response.json();
             })
             .then(data => {
@@ -207,13 +393,14 @@
                 if (data.extracted === "True") {
                     resultsElement.className = 'results-text coded';
                     extractButton.style.display = 'none';
-                    embedButton.style.display = 'none';
                 } else {
                     resultsElement.className = 'results-text not-coded';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                // Hide the progress spinner.
+                hideSpinner();
             });
         }
 
@@ -231,6 +418,7 @@
                 imgElement.classList.remove('border-on');
             }
         }
+
     </script>
 </body>
 </html>
