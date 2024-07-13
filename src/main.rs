@@ -2,18 +2,23 @@
 
 use log::info;
 use log4rs;
-use futures::{StreamExt, TryStreamExt};
-use lazy_static::lazy_static;
-use std::collections::HashMap;
-use std::fs::File;
-use std::path::Path;
-use std::io::Write;
-use std::io::prelude::*;
-use std::sync::{Arc, Mutex};
-use sanitize_filename::sanitize;
 use actix_files as fs;
 use actix_multipart::Multipart;
 use actix_web::{get, post, web, App, HttpServer, HttpResponse, Responder};
+use chrono::Utc;
+use futures_util::stream::{StreamExt, TryStreamExt};
+use lazy_static::lazy_static;
+use std::collections::HashMap;
+use std::env::temp_dir;
+use std::fs::create_dir_all;
+use std::fs::File as StdFile;
+use std::io::Write;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
+use sanitize_filename::sanitize;
+use tokio::fs::File;
+use tokio::io::AsyncReadExt;
 
 use crate::settings::Settings;
 use crate::steg::Steganography;
@@ -26,9 +31,9 @@ pub mod steg;
 lazy_static! {
     static ref SETTINGS: Mutex<Settings> = {
         // Read YAML settings file.
-        let mut file = File::open("settings.yml").expect("Unable to open file");
+        let mut file = futures::executor::block_on(File::open("settings.yml")).expect("Unable to open file");
         let mut contents = String::new();
-        file.read_to_string(&mut contents).expect("Unable to read file");
+        futures::executor::block_on(file.read_to_string(&mut contents)).expect("Unable to read file");
 
         // Deserialize YAML into Settings struct.
         let settings: Settings = serde_yaml::from_str(&contents).expect("Unable to parse YAML");
@@ -50,7 +55,7 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
     let settings: Settings = SETTINGS.lock().unwrap().clone();
 
     // Json map of response to upload request
-    // following analysis be Steganography methods.
+    // following analysis by Steganography methods.
     let mut response_data = HashMap::new();
 
     while let Ok(Some(mut field)) = payload.try_next().await {
@@ -60,7 +65,7 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
             let filepath_clone = filepath.clone();
 
             // File::create is a blocking operation, use threadpool.
-            let mut f = web::block(move || File::create(filepath)).await.unwrap().unwrap();
+            let mut f = web::block(move || StdFile::create(filepath)).await.unwrap().unwrap();
 
             // Field in turn is stream of *Bytes* object.
             while let Some(chunk) = field.next().await {
@@ -74,42 +79,6 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
 
             // Process the uploaded file with Steganography instance.
             let mut steg = steg.lock().unwrap();
-
-            // *******************************************************************************
-            // Temporary code to generate test data for UI development.
-            // *******************************************************************************
-            // steg.load_new_file(String::from("./images/volleyballs.png"));
-            // let embed_files = vec!["/home/mike/Desktop/TestPics/kittenseyes.png", "/home/mike/Desktop/TestPics/littlecat.jpeg"];
-            // if let Err(err) = steg.embed_files(false, &String::from(""), &embed_files) {
-            //     eprintln!("Error: {}", err);
-            // }
-            // else {
-            //     steg.save_image("/home/mike/Desktop/TestPics/twocatpics_npw.png".to_string())
-            // }
-            // *******************************************************************************
-            // steg.load_new_file(String::from("./images/volleyballs.png"));
-            // let embed_files = vec!["/home/mike/Desktop/TestPics/kittenseyes.png",
-            //                         "/home/mike/Desktop/TestPics/littlecat.jpeg",
-            //                         "/home/mike/Desktop/TestPics/lotsofkittens.jpeg"];
-            // if let Err(err) = steg.embed_files(false, &String::from(""), &embed_files) {
-            //     eprintln!("Error: {}", err);
-            // }
-            // else {
-            //     steg.save_image("/home/mike/Desktop/TestPics/threecatpics_npw.png".to_string())
-            // }
-            // *******************************************************************************
-            // steg.load_new_file(String::from("./images/volleyballs.png"));
-            // let embed_files = vec!["/home/mike/Desktop/TestPics/kittenseyes.png",
-            //                         "/home/mike/Desktop/TestPics/littlecat.jpeg",
-            //                         "/home/mike/Desktop/TestPics/lotsofkittens.jpeg",
-            //                         "/home/mike/Desktop/TestPics/upsidedownkitten.jpeg"];
-            // if let Err(err) = steg.embed_files(true, &String::from("michaek"), &embed_files) {
-            //     eprintln!("Error: {}", err);
-            // }
-            // else {
-            //     steg.save_image("/home/mike/Desktop/TestPics/fourcatpics_pw.png".to_string())
-            // }
-            // *******************************************************************************
         
             // Load a file for analysis.
             // This includes whether or not it is coded.
@@ -118,6 +87,7 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
             // Construct image file analysis results for display to the user.
             response_data.insert("coded", "False".to_string());
             response_data.insert("password", "False".to_string());
+            response_data.insert("capacity", steg.embed_capacity.to_string());
             if steg.pic_coded == true {
                 response_data.insert("coded", "True".to_string());
                 if steg.pic_has_pw == true {
@@ -146,36 +116,130 @@ async fn extract(
     let mut response_data = HashMap::new();
 
     // Perform extraction of current uploaded file.
-    steg.extract_data(password.clone());
+    // Check status of extaction
+    match steg.extract_data(password.clone()) {
+        // Extraction completed successfully.
+        Ok(_) => {
+            // Extraction completed successfully.
+            // Get vector of extract files to display on UI.
+            let saved_files = &steg.embedded_files;
+            let mut files = Vec::new();
+            for file in saved_files {
+                let file_name = Path::new(&file.file_name)
+                    .file_name()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
+                let file_path = format!("secrets/{}", file_name);
+                let file_type = file.file_type.clone();
 
-    // Get vector of extract files to display on UI.
-    let saved_files = &steg.embedded_files;
+                files.push(HashMap::from([
+                    ("name", file_name.clone()),
+                    ("path", file_path.clone()),
+                    ("type", file_type.clone()),
+                ]));
+            }
+
+            // Respond with extraction status to display on UI.
+            response_data.insert("extracted", "True".to_string());
+            let duration_str = format!("{:?}", steg.extract_duration);
+            response_data.insert("time", duration_str);
+
+            // Respond with names of extracted files.
+            let files_json = serde_json::to_string(&files).unwrap();
+            response_data.insert("files", files_json.clone());
+        }
+        // Extraction failed with error result.
+        Err(_e) => {
+            // Respond with failed extraction status to display on UI.
+            response_data.insert("extracted", "False".to_string());
+            let duration_str = format!("{:?}", steg.extract_duration);
+            response_data.insert("time", duration_str);
+        }
+    }
+    HttpResponse::Ok().json(response_data)
+}
+
+#[post("/embed")]
+async fn embed(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>>>) -> impl Responder {
+
+    // Get application settings in scope.
+    let settings: Settings = SETTINGS.lock().unwrap().clone();
+
+    let mut password = String::new();
     let mut files = Vec::new();
-    for file in saved_files {
-        let file_name = Path::new(&file.file_name)
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string();
-        let file_path = format!("secrets/{}", file_name);
-        let file_type = file.file_type.clone();
+    let temp_dir = temp_dir();
 
-        files.push(HashMap::from([
-            ("name", file_name.clone()),
-            ("path", file_path.clone()),
-            ("type", file_type.clone()),
-        ]));
+    while let Ok(Some(mut field)) = payload.try_next().await {
+        let content_disposition = field.content_disposition();
+        if let Some(name) = content_disposition.get_name() {
+            if name == "password" {
+                while let Some(chunk) = field.try_next().await.unwrap() {
+                    password.push_str(&String::from_utf8(chunk.to_vec()).unwrap());
+                }
+            } else if name == "files" {
+                if let Some(filename) = content_disposition.get_filename() {
+                    let sanitized_filename = sanitize(filename);
+                    let file_path = temp_dir.join(&sanitized_filename);
+                    let mut file = StdFile::create(&file_path).unwrap();
+                    while let Some(chunk) = field.try_next().await.unwrap() {
+                        file.write_all(&chunk).unwrap();
+                    }
+                    files.push(file_path.to_str().unwrap().to_string());
+                }
+            }
+        }
     }
 
-    // Respond with extraction status to display on UI.
-    response_data.insert("extracted", "True".to_string());
-    let duration_str = format!("{:?}", steg.extract_duration);
-    response_data.insert("time", duration_str);
+    // Convert Vec<String> to Vec<&str> for steg function.
+    let files_ref: Vec<&str> = files.iter().map(|s| &**s).collect();
 
-    let files_json = serde_json::to_string(&files).unwrap();
-    response_data.insert("files", files_json.clone());
-    HttpResponse::Ok().json(response_data)
+    // Get access to steg instance.
+    let mut steg = steg.lock().unwrap();
+    // Call the embed_files function with appropriate parameters.
+    match steg.embed_files(!password.is_empty(), &password, &files_ref) {
+        Ok(_) => {
+            // Embedding succesful, so save to temporary file.
+            // Create temporary file name from current time.
+            let mut ts_string = Utc::now().to_string();
+            ts_string = ts_string.chars().filter(|c| !c.is_whitespace()).collect();
+ 
+            // Save in secrets folder from settings.
+            // Should actually check the folder exists, and create if not.
+            let mut wrt_path = PathBuf::new();       
+            wrt_path.push(&settings.secret_folder);
+            if !wrt_path.exists() {
+                create_dir_all(&wrt_path).unwrap();
+            }
+            wrt_path.push(format!("{}.png",ts_string));
+            let wrt_path_string = wrt_path.to_string_lossy().into_owned();
+            let wrt_path_string_clone = wrt_path_string.clone();
+
+
+            // Save the temporary output file.
+            steg.save_image(wrt_path_string_clone.clone());
+
+            // Embedding successful, respond with embedding status.
+            let mut response_data = HashMap::new();
+            response_data.insert("embedded", "True".to_string());
+            let duration_str = format!("{:?}", steg.embed_duration);
+            response_data.insert("time", duration_str);
+            response_data.insert("thumbnail", wrt_path_string_clone);
+
+            // Respond with embedding status to display on UI.
+            HttpResponse::Ok().json(response_data)
+        }
+        Err(e) => {
+            // Embedding failed, respond with error.
+            let mut response_data = HashMap::new();
+            response_data.insert("embedded", "False".to_string());
+            response_data.insert("error", e.to_string());
+
+            // Respond with embedding status to display on UI.
+            HttpResponse::InternalServerError().json(response_data)
+        }
+    }
 }
 
 #[actix_web::main]
@@ -188,7 +252,7 @@ async fn main() -> std::io::Result<()> {
     // Do initial program version logging, mainly as a test.
     info!("Application started: {} v({})", settings.program_name, settings.program_ver);
 
-    // Instatiate a steganography struct.
+    // Instantiate a steganography struct.
     // Call init method to initialise struct.
     let img_steg = Arc::new(Mutex::new(Steganography::init()));
 
@@ -200,6 +264,7 @@ async fn main() -> std::io::Result<()> {
             .service(intro)
             .service(upload)
             .service(extract)
+            .service(embed)
             .service(actix_files::Files::new("/static", "./static").show_files_listing())
     })
     .bind("127.0.0.1:8080")?

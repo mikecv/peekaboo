@@ -16,7 +16,10 @@ lazy_static = "1.4"
 image = "0.23"
 ring = "0.16.20"
 futures = "0.3"
+futures-util = "0.3"
 sanitize-filename = "0.3"
+tokio = { version = "1.38.0", features = ["full"] }
+chrono = "0.4"
 
 # UI related.
 actix-web = "4.4.0"
