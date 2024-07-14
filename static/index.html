@@ -216,7 +216,7 @@
 
         // Event listener for commit to files to embed.
         document.querySelector('label[for="fileEmbed"]').addEventListener('click', function() {
-            console.log("Committing files for embedding..");
+            console.log("Committing files for embedding...");
             document.getElementById('fileEmbed').click();
         });
 
@@ -284,13 +284,28 @@
                 // Hide the progress spinner.
                 hideSpinner();
 
+                console.log("Received data from /embed:", data);
                 const resultsElement = document.getElementById('processingResults');
                 resultsElement.textContent = `File(s) embedded: ${data.embedded}, Duration: ${data.time}`;
 
                 if (data.thumbnail) {
-                    const thumbnail = document.getElementById('thumbnail');
-                    thumbnail.src = data.thumbnail;  // Set the thumbnail URL
-                    thumbnail.style.display = 'block';
+                    console.log("Displaying thumbnail of image after embedding.");
+                    const thumbnailContainer = document.getElementById('results-text');
+                    const thumbnailDiv = document.createElement('div');
+                    thumbnailDiv.classList.add('thumbnail-container');
+
+                    const thumbnail = document.createElement('img');
+                    thumbnail.src = data.thumbnail;
+                    thumbnail.classList.add('thumbnail');
+                    thumbnailDiv.appendChild(thumbnail);
+
+                    const fileName = document.createElement('p');
+                    fileName.textContent = data.filename;
+                    fileName.classList.add('thumbnail-filename');
+                    thumbnailDiv.appendChild(fileName);
+                    console.log("Embedding thumbnail", fileName);
+
+                    thumbnailContainer.appendChild(thumbnailDiv);
                 } else {
                     console.error('Thumbnail URL is missing or invalid');
                 }
