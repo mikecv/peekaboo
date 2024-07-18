@@ -703,7 +703,7 @@ impl Steganography {
 
             // Determine delta time for function.
             self.embed_duration = embed_start.elapsed();
-            info!("Time to embed file(s): {:?}", self.embed_duration);
+            info!("Time to NOT embed any file: {:?}", self.embed_duration);
  
             Ok(())
         }
