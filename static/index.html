@@ -268,9 +268,6 @@
         });
 
         function performEmbedding(password = '') {
-            // Show the progress spinner.
-            showSpinner();
- 
             const fileEmbedList = document.getElementById('fileEmbedList');
             const embedFiles = fileEmbedList.filesArray || [];
             const formData = new FormData();
@@ -284,8 +281,9 @@
 
             formData.append('password', password);
 
-            console.log("Appending password to form data: ", password);
-
+            // Show the progress spinner.
+            showSpinner();
+ 
             console.log("Posting to /embed endpoint.");
             fetch('/embed', {
                 method: 'POST',
@@ -409,25 +407,62 @@
                     const fileDiv = document.createElement('div');
                     fileDiv.classList.add('file-thumbnail');
 
+                    // File type of extracted file.
+                    console.log('Extracted file: ' + file.name);
+                    console.log('Extracted file of type: ' + file.type);
+
                     if (file.type.startsWith('image/')) {
+                        // IMAGE mime types.
+                        // Show image as thumbnail.
+                        const a = document.createElement('a');
+                        a.href = file.path;
+                        a.target = '_blank'; // Open in new tab
                         const img = document.createElement('img');
                         img.src = file.path;
                         img.alt = file.name;
                         img.classList.add('thumbnail');
                         img.classList.add('border-on');
-                        fileDiv.appendChild(img);
+                        a.appendChild(img);
+                        fileDiv.appendChild(a);
 
                         // Create and append a paragraph element with the file name.
                         const fileName = document.createElement('p');
                         fileName.textContent = file.name;
                         fileName.classList.add('thumbnail-filename');
                         fileDiv.appendChild(fileName);
-                    } else {
-                        const icon = document.createElement('div');
-                        icon.classList.add('generic-thumbnail');
-                        icon.textContent = file.name;
+
+
+                    } else if (file.type.startsWith('texxt/')) {
+                        // TEXT mime types.
+                        // Show image as text thumbnail.
+                        const a = document.createElement('a');
+                        a.href = file.path;
+                        a.download = file.name; // Enable download
+                        const img = document.createElement('img');
+                        img.src = '/static/icon-text.png';
+                        img.alt = 'Text File Thumbnail';
+                        img.classList.add('thumbnail');
+                        a.appendChild(img);
+                        fileDiv.appendChild(a);
+
+                        const fileName = document.createElement('p');
+                        fileName.textContent = file.name;
                         fileName.classList.add('thumbnail-filename');
-                        fileDiv.appendChild(icon);
+                        fileDiv.appendChild(fileName);
+                    } else {
+                        const a = document.createElement('a');
+                        a.href = file.path;
+                        a.target = '_blank';
+                        const img = document.createElement('img');
+                        img.src = '/static/icon-generic.png';
+                        img.classList.add('thumbnail');
+                        a.appendChild(img);
+                        fileDiv.appendChild(a);
+
+                        const fileName = document.createElement('p');
+                        fileName.textContent = file.name;
+                        fileName.classList.add('thumbnail-filename');
+                        fileDiv.appendChild(fileName);
                     }
 
                     resultsTextDiv.appendChild(fileDiv);

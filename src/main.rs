@@ -132,12 +132,12 @@ async fn extract(
                     .unwrap()
                     .to_string();
                 let file_path = format!("secrets/{}", file_name);
-                let file_type = file.file_type.clone();
+                let file_type = &file.file_type;
 
                 files.push(HashMap::from([
-                    ("name", file_name.clone()),
-                    ("path", file_path.clone()),
-                    ("type", file_type.clone()),
+                    ("name", file_name),
+                    ("path", file_path),
+                    ("type", file_type.to_string()),
                 ]));
             }
 
