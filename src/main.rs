@@ -132,12 +132,12 @@ async fn extract(
                     .unwrap()
                     .to_string();
                 let file_path = format!("secrets/{}", file_name);
-                let file_type = file.file_type.clone();
+                let file_type = &file.file_type;
 
                 files.push(HashMap::from([
-                    ("name", file_name.clone()),
-                    ("path", file_path.clone()),
-                    ("type", file_type.clone()),
+                    ("name", file_name),
+                    ("path", file_path),
+                    ("type", file_type.to_string()),
                 ]));
             }
 
@@ -225,7 +225,8 @@ async fn embed(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>>
             response_data.insert("embedded", "True".to_string());
             let duration_str = format!("{:?}", steg.embed_duration);
             response_data.insert("time", duration_str);
-            response_data.insert("thumbnail", wrt_path_string_clone);
+            response_data.insert("thumbnail", wrt_path_string_clone.clone());
+            response_data.insert("filename", wrt_path_string_clone.clone());
 
             // Respond with embedding status to display on UI.
             HttpResponse::Ok().json(response_data)

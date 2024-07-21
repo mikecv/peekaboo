@@ -62,8 +62,8 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <p>Enter Password:</p>
-            <input type="password" id="passwordInput">
-            <button id="passwordSubmitButton">Submit</button>
+            <input type="password" id="submitPasswordInput">
+            <button id="extractPasswordSubmitButton">Submit</button>
         </div>
     </div>
 
@@ -194,6 +194,13 @@
         document.getElementById('embedButton').addEventListener('click', function() {
             console.log("Request to embed files into uploaded image.");
             const embedSection = document.getElementById('embedSection');
+            const fileEmbedList = document.getElementById('fileEmbedList');
+
+            // Initialize the list of files to embed.
+            console.log("Initialising list of files to embed.");
+            fileEmbedList.innerHTML = '';
+            fileEmbedList.filesArray = [];
+
             embedSection.style.display = 'block';
         });
 
@@ -202,21 +209,26 @@
             console.log("Browsing for files to embed into uploaded image.");
             const files = event.target.files;
             const fileEmbedList = document.getElementById('fileEmbedList');
-            fileEmbedList.innerHTML = '';
+            const filesArray = fileEmbedList.filesArray || [];
 
-            // Get file to imbed into list.
+            // Add new files to the existing list.
             for (let i = 0; i < files.length; i++) {
+                filesArray.push(files[i]);
+
                 const li = document.createElement('li');
                 li.textContent = files[i].name;
                 fileEmbedList.appendChild(li);
             }
+
+            // Store the updated list of files in the fileEmbedList element.
+            fileEmbedList.filesArray = filesArray;
 
             console.log("File list updated from user selection.", files);
         });
 
         // Event listener for commit to files to embed.
         document.querySelector('label[for="fileEmbed"]').addEventListener('click', function() {
-            console.log("Committing files for embedding..");
+            console.log("Committing files for embedding...");
             document.getElementById('fileEmbed').click();
         });
 
@@ -238,9 +250,6 @@
         });
 
         document.getElementById('embedPasswordSubmitButton').addEventListener('click', function() {
-            // Show the progress spinner.
-            showSpinner();
- 
             console.log("Embed files submit button pressed.");
             const password = document.getElementById('embedPasswordInput').value;
             const modal = document.getElementById('embedPasswordModal');
@@ -250,22 +259,31 @@
             performEmbedding(password);
         });
 
+        document.getElementById('embedPasswordInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                console.log("Enter key pressed to submit files for embedding.");
+                event.preventDefault();
+                document.getElementById('embedPasswordSubmitButton').click();
+            }
+        });
+
         function performEmbedding(password = '') {
-            const embedFiles = document.getElementById('fileEmbed').files;
+            const fileEmbedList = document.getElementById('fileEmbedList');
+            const embedFiles = fileEmbedList.filesArray || [];
             const formData = new FormData();
 
             console.log("Inside function to post to embedding endpoint.");
 
             for (let i = 0; i < embedFiles.length; i++) {
                 formData.append('files', embedFiles[i]);
-                
                 console.log("Appending file to form data: ", embedFiles[i]);
             }
 
             formData.append('password', password);
 
-            console.log("Appending password to form data: ", password);
-
+            // Show the progress spinner.
+            showSpinner();
+ 
             console.log("Posting to /embed endpoint.");
             fetch('/embed', {
                 method: 'POST',
@@ -284,13 +302,28 @@
                 // Hide the progress spinner.
                 hideSpinner();
 
+                console.log("Received data from /embed:", data);
                 const resultsElement = document.getElementById('processingResults');
                 resultsElement.textContent = `File(s) embedded: ${data.embedded}, Duration: ${data.time}`;
 
                 if (data.thumbnail) {
-                    const thumbnail = document.getElementById('thumbnail');
-                    thumbnail.src = data.thumbnail;  // Set the thumbnail URL
-                    thumbnail.style.display = 'block';
+                    console.log("Displaying thumbnail of image after embedding.");
+                    const thumbnailContainer = document.getElementById('results-text');
+                    const thumbnailDiv = document.createElement('div');
+                    thumbnailDiv.classList.add('thumbnail-container');
+
+                    const thumbnail = document.createElement('img');
+                    thumbnail.src = data.thumbnail;
+                    thumbnail.classList.add('thumbnail');
+                    thumbnailDiv.appendChild(thumbnail);
+
+                    const fileName = document.createElement('p');
+                    fileName.textContent = data.filename;
+                    fileName.classList.add('thumbnail-filename');
+                    thumbnailDiv.appendChild(fileName);
+                    console.log("Embedding thumbnail", fileName);
+
+                    thumbnailContainer.appendChild(thumbnailDiv);
                 } else {
                     console.error('Thumbnail URL is missing or invalid');
                 }
@@ -327,11 +360,19 @@
             }
         });
 
-        document.getElementById('passwordSubmitButton').addEventListener('click', function() {
-            const password = document.getElementById('passwordInput').value;
+        document.getElementById('extractPasswordSubmitButton').addEventListener('click', function() {
+            const password = document.getElementById('submitPasswordInput').value;
             const modal = document.getElementById('passwordModal');
             modal.style.display = 'none';
             performExtraction(password);
+        });
+
+        document.getElementById('submitPasswordInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                console.log("Enter key pressed to submit files for extraction.");
+                event.preventDefault();
+                document.getElementById('extractPasswordSubmitButton').click();
+            }
         });
 
         function performExtraction(password = '') {
@@ -366,25 +407,62 @@
                     const fileDiv = document.createElement('div');
                     fileDiv.classList.add('file-thumbnail');
 
+                    // File type of extracted file.
+                    console.log('Extracted file: ' + file.name);
+                    console.log('Extracted file of type: ' + file.type);
+
                     if (file.type.startsWith('image/')) {
+                        // IMAGE mime types.
+                        // Show image as thumbnail.
+                        const a = document.createElement('a');
+                        a.href = file.path;
+                        a.target = '_blank'; // Open in new tab
                         const img = document.createElement('img');
                         img.src = file.path;
                         img.alt = file.name;
                         img.classList.add('thumbnail');
                         img.classList.add('border-on');
-                        fileDiv.appendChild(img);
+                        a.appendChild(img);
+                        fileDiv.appendChild(a);
 
                         // Create and append a paragraph element with the file name.
                         const fileName = document.createElement('p');
                         fileName.textContent = file.name;
                         fileName.classList.add('thumbnail-filename');
                         fileDiv.appendChild(fileName);
-                    } else {
-                        const icon = document.createElement('div');
-                        icon.classList.add('generic-thumbnail');
-                        icon.textContent = file.name;
+
+
+                    } else if (file.type.startsWith('texxt/')) {
+                        // TEXT mime types.
+                        // Show image as text thumbnail.
+                        const a = document.createElement('a');
+                        a.href = file.path;
+                        a.download = file.name; // Enable download
+                        const img = document.createElement('img');
+                        img.src = '/static/icon-text.png';
+                        img.alt = 'Text File Thumbnail';
+                        img.classList.add('thumbnail');
+                        a.appendChild(img);
+                        fileDiv.appendChild(a);
+
+                        const fileName = document.createElement('p');
+                        fileName.textContent = file.name;
                         fileName.classList.add('thumbnail-filename');
-                        fileDiv.appendChild(icon);
+                        fileDiv.appendChild(fileName);
+                    } else {
+                        const a = document.createElement('a');
+                        a.href = file.path;
+                        a.target = '_blank';
+                        const img = document.createElement('img');
+                        img.src = '/static/icon-generic.png';
+                        img.classList.add('thumbnail');
+                        a.appendChild(img);
+                        fileDiv.appendChild(a);
+
+                        const fileName = document.createElement('p');
+                        fileName.textContent = file.name;
+                        fileName.classList.add('thumbnail-filename');
+                        fileDiv.appendChild(fileName);
                     }
 
                     resultsTextDiv.appendChild(fileDiv);

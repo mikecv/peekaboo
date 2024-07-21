@@ -583,7 +583,7 @@ impl Steganography {
         }
 
         // Open the file for writing.
-        info!("Opening file for writing: {}", wrt_path_string);
+        info!("Opening file for writing: {}", wrt_path_string.clone());
         let mut file = File::create(&wrt_path_string)?;
 
         // Keep track of bytes left to write.
@@ -620,17 +620,39 @@ impl Steganography {
         // No need to manually close as the file will be closed when it goes out of scope.
         info!("Data written to file successfully.");
 
+        // From file extention fix the file type.
+        // Use in front end UI for displaying file thumbnails.
+        let file_extension = Path::new(&wrt_path_string)
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .unwrap_or("");
+        let mime_type = get_mime_type(file_extension);
+
         // Push the filename onto the vector array so that we have a list of all
         // files written.
         let file_details = EmbeddedFile {
-            file_name : String::from(wrt_path_string),
-            file_type : String::from("image/png"),
+            file_name : String::from(&wrt_path_string),
+            file_type: String::from(mime_type),
             file_extracted : true,
             file_coded : false,
             file_analysed : true,
         };
         self.embedded_files.push(file_details);
         Ok(())
+    }
+}
+
+// Helper function to map file extensions to MIME types.
+// Used by front end when displaying thumbnails of extracted images.
+fn get_mime_type(extension: &str) -> &str {
+    match extension {
+        "txt" => "text/plain",
+        "html" => "text/html",
+        "jpg" | "jpeg" => "image/jpeg",
+        "png" => "image/png",
+        "gif" => "image/gif",
+        // Add other extensions and their MIME types as needed.
+        _ => "application/octet-stream",
     }
 }
 
@@ -703,7 +725,7 @@ impl Steganography {
 
             // Determine delta time for function.
             self.embed_duration = embed_start.elapsed();
-            info!("Time to embed file(s): {:?}", self.embed_duration);
+            info!("Time to NOT embed any file: {:?}", self.embed_duration);
  
             Ok(())
         }
