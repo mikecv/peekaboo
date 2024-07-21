@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #c4cad8;
     color: #333;
 }
 
@@ -176,7 +176,6 @@ p {
     cursor: pointer;
 }
 
-/* Add your overlay and spinner styles here */
 #overlay {
     position: fixed;
     top: 0;
