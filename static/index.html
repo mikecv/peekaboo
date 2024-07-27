@@ -35,8 +35,8 @@
     </p>
 
     <div>
-        <p id="processingResults" class="results-text" style="text-align:center;"></p>
         <div id="results-text" class="results-thumbnails"></div>
+        <p id="processingResults" class="results-text" style="text-align:center;"></p>
     </div>
 
     <!-- Embed Section -->
@@ -100,16 +100,21 @@
             const resultsElement = document.getElementById('processingResults');
             resultsElement.textContent = '';
             resultsElement.className = 'results-text';
-}
-        // Perform image uploading.
+        }
+
+        // Function to handle image upload.
         document.getElementById('imageUpload').addEventListener('change', function(event) {
             console.log("Request to upload the browsed image.");
+
+            // Initialize elements
             const file = event.target.files[0];
             const fileLabel = document.getElementById('fileLabel');
             const uploadButton = document.getElementById('uploadButton');
             const extractButton = document.getElementById('extractButton');
             const embedButton = document.getElementById('embedButton');
+            const resultsContainer = document.getElementById('results-text');
 
+            // Hide buttons initially
             console.log("Hiding upload, extract, and embed buttons.");
             uploadButton.style.display = 'none';
             extractButton.style.display = 'none';
@@ -117,14 +122,45 @@
             clearThumbnails();
             clearProcessingResults();
 
+            // Create a container for the thumbnail and results if not already present.
+            let thumbnailContainer = document.getElementById('thumbnailContainer');
+            if (!thumbnailContainer) {
+                thumbnailContainer = document.createElement('div');
+                thumbnailContainer.id = 'thumbnailContainer';
+                thumbnailContainer.classList.add('thumbnail-container');
+                resultsContainer.appendChild(thumbnailContainer);
+                console.log("Created new thumbnailContainer and appended to resultsContainer.");
+            } else {
+                console.log("Using existing thumbnailContainer.");
+            }
+
+            // Handle file selection.
             if (file) {
                 fileLabel.textContent = file.name;
                 if (file.type === 'image/png') {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        const img = document.getElementById('thumbnail');
+                        let imgLink = document.getElementById('thumbnailLink');
+                        let img = document.getElementById('thumbnail');
+                        if (!imgLink) {
+                            imgLink = document.createElement('a');
+                            imgLink.id = 'thumbnailLink';
+                            imgLink.target = '_blank';
+                            thumbnailContainer.appendChild(imgLink);
+                        }
+                        if (!img) {
+                            img = document.createElement('img');
+                            img.id = 'thumbnail';
+                            img.classList.add('thumbnail');
+                            imgLink.appendChild(img);
+                        } else if (img.parentElement !== imgLink) {
+                            // Ensure the img is inside the imgLink.
+                            imgLink.appendChild(img);
+                        }
                         img.src = e.target.result;
+                        imgLink.href = e.target.result;
                         img.style.display = 'block';
+
                         console.log("Displaying upload button for valid browsed image.");
                         uploadButton.style.display = 'block';
                     }
@@ -299,9 +335,6 @@
                 return response.json();
             })
             .then(data => {
-                // Hide the progress spinner.
-                hideSpinner();
-
                 console.log("Received data from /embed:", data);
                 const resultsElement = document.getElementById('processingResults');
                 resultsElement.textContent = `File(s) embedded: ${data.embedded}, Duration: ${data.time}`;
@@ -309,13 +342,18 @@
                 if (data.thumbnail) {
                     console.log("Displaying thumbnail of image after embedding.");
                     const thumbnailContainer = document.getElementById('results-text');
+                    thumbnailContainer.innerHTML = '';
                     const thumbnailDiv = document.createElement('div');
                     thumbnailDiv.classList.add('thumbnail-container');
 
+                    const a = document.createElement('a');
+                    a.href = data.thumbnail;
+                    a.target = '_blank'; // Open in new tab
                     const thumbnail = document.createElement('img');
                     thumbnail.src = data.thumbnail;
                     thumbnail.classList.add('thumbnail');
-                    thumbnailDiv.appendChild(thumbnail);
+                    a.appendChild(thumbnail);
+                    thumbnailDiv.appendChild(a);
 
                     const fileName = document.createElement('p');
                     fileName.textContent = data.filename;
@@ -334,13 +372,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-
-                // Hide the progress spinner.
-                hideSpinner();
             });
-
-            // Hide the progress spinner.
-            hideSpinner();
         }
 
         document.querySelectorAll('.close').forEach(closeButton => {
@@ -416,7 +448,7 @@
                         // Show image as thumbnail.
                         const a = document.createElement('a');
                         a.href = file.path;
-                        a.target = '_blank'; // Open in new tab
+                        a.target = '_blank';
                         const img = document.createElement('img');
                         img.src = file.path;
                         img.alt = file.name;
@@ -431,8 +463,7 @@
                         fileName.classList.add('thumbnail-filename');
                         fileDiv.appendChild(fileName);
 
-
-                    } else if (file.type.startsWith('texxt/')) {
+                    } else if (file.type.startsWith('text/')) {
                         // TEXT mime types.
                         // Show image as text thumbnail.
                         const a = document.createElement('a');
