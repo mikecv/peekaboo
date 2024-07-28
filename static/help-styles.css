@@ -1,0 +1,123 @@
+/* Index styles. */
+
+.sidebar {
+   height: 100%;
+   width: 0;
+   position: fixed;
+   z-index: 1;
+   top: 0;
+   left: 0;
+   background-color: #c4cad8;
+   overflow-x: hidden;
+   transition: 0.5s;
+   padding-top: 60px;
+}
+
+.sidebar a {
+   padding: 8px 8px 8px 32px;
+   text-decoration: none;
+   font-family: "Lato", sans-serif;
+   font-size: 25px;
+   color: #575c74;
+   display: block;
+   transition: 0.3s;
+}
+
+.sidebar a:hover {
+   color: #0f3c6d;
+}
+
+.sidebar .closebtn {
+   position: absolute;
+   top: 0;
+   right: 25px;
+   font-size: 36px;
+   margin-left: 50px;
+}
+
+.openbtn {
+   font-size: 20px;
+   cursor: pointer;
+   color: black;
+   padding: 10px 15px;
+   border: none;
+}
+
+.openbtn:hover {
+   background-color: #444;
+}
+
+#content {
+   transition: margin-left 0.5s;
+   padding: 16px;
+}
+
+@media screen and (max-height: 450px) {
+   .sidebar {
+      padding-top: 15px;
+   }
+   .sidebar a {
+      font-size: 18px;
+   }
+}
+
+/* Index button. Always visible. */
+
+.openbtn {
+   position: fixed;
+   top: 10px;
+   left: 15px;
+   z-index: 1000;
+   background-color: #c4cad8;
+   border: 1px solid #ccc; 
+   padding: 10px;
+   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#content {
+   margin-top: 25px;
+}
+
+/* Body styles. */
+
+body {
+   font-family: Arial, sans-serif;
+   background-color: #c4cad8;
+   color: #333;
+}
+
+section {
+	border: none;
+}
+
+div {
+	border: none;
+   text-align: left;
+   align-items: left;
+}
+
+h1 {
+   color: #32659c;
+   text-align:left;
+   margin-top: 0.5em;
+   margin-bottom: 0.5em;
+    font-size: 2em;
+   font-weight: bold;
+}
+
+h2 {
+   color: #32659c;
+   text-align:left;
+   margin-top: 0.5em;
+   margin-bottom: 0.5em;
+    font-size: 1.5em;
+   font-weight: bold;
+}
+
+p {
+   font-size: 1em;
+   line-height: 100%;
+   max-width: 1000px;
+   margin-top: 0.25em ;
+   margin-bottom: 1.0em ;
+ }
