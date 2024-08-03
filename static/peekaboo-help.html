@@ -16,15 +16,18 @@
    <body>
       <div id="mySidebar" class="sidebar">
          <a href="javascript:void(0)" class="closebtn" onclick="hide()">×</a>
-         <a href="#">Introduction</a>
-         <a href="#">Overview</a>
-         <a href="#">About</a>
+         <a href="#Introduction">Introduction</a>
+         <a href="#Overview">Overview</a>
+         <a href="#Embedding">Embedding</a>
+         <a href="#Extracting">Extracting</a>
+         <a href="#About">About</a>
       </div>
       <div id="content">
          <button class="openbtn" id="openbtn" onclick="show()">☰</button>
 
          <h1>Peek-A-Boo</h1>
-         <h2>Introduction</h2><a id="Introduction"></a>
+         <a id="Introduction"></a>
+         <h2>Introduction</h2>
          <p>Steganography is the art of hiding in plain sight.
          This application is about hiding information in an electronic image, and in plain sight
          in this case by embedding information in variations in the colour of the image pixels.
@@ -36,7 +39,8 @@
          the original image.
          </p>
 
-         <h2>Overview</h2><a id="Overview"></a>
+         <a id="Overview"></a>
+         <h2>Overview</h2>
          <p>There are basically two functions that the application performs. Firstly embedding
          a file or files into an image and saving the resultant image, and secondly,
          being able to detect that an image has embedded data and being able to extract and save
@@ -55,15 +59,42 @@
          possible to embed the image into itself. Addmittedly, the resultant image may end
          up less compressed and be of a larger file size than the original. Once extracted,
          the embedded image will be identical to the original image. While this is possible,
-         it may be obvious that the image containging the embedded image has been modified.
+         it may however be obvious that the image containing the embedded image has been modified.
          </p>
 
-         <h2>About</h2><a id="About"></a>
-         <p style="font-weight: bold;"">Peek-A-Boo</p>
-         <p>A Steganography Application.</p>
-         <p>By: galacticwingcommander@gmail.com</p>
-         <p>Version 0.1.0</p>
-         <p>2024</p>
-         </div>
+         <a id="Embedding"></a>
+         <h2>Embedding</h2>
+         <p>While the file to host the embedded data is constrained to be a PNG image file,
+         files embedded into the host image file can be of any type.
+         </p>
+         <p>So any type of file can be embedded, and files of any size can be embedded.
+         The only proviso is that collective size of all the files is within the embedding
+         capacity of the host image, noting that the embedding capacity is a function of the
+         number of pixels, colour planes, and colour plain depth of the host image.
+         For example, for a 500x500 pixel image with 8 bit RGB colour depth, the embedding
+         capacity of the image is:
+         </p>
+         <p class="eq">
+         500 x 500 x 3 x 8 = 6 MB
+         </p>
+         <p>The embedding capacity will be less than that quoted above as some of the capacity
+         is used up to store details of the embedded files, e.g. number of files, size of
+         each file, the filenames etc. Additionally, you may not want to use the full
+         capacity as the more data that is embedded the higher the potential that changes
+         to host image will be noticeable.
+         </p>
+
+         <a id="Extracting"></a>
+         <h2>Extracting</h2>
+
+         <a id="About"></a>
+         <h2>About</h2>
+         <p style="text-align:center; font-weight: bold;">Peek-A-Boo</p>
+         <p style="text-align:center;">A Steganography Application.</p>
+         <p style="text-align:center;">By: galacticwingcommander@gmail.com</p>
+         <p style="text-align:center;">Version {{version}}</p>
+         <p style="text-align:center;">2024</p>
+
+      </div>
    </body>
 </html>
