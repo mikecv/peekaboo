@@ -1,7 +1,6 @@
 # Version information.
-settings_version:   0.1.0
 # Info.
-program_name:       "Peek-a-Boo"
+program_name:       "Peek-A-Boo"
 program_ver:        0.0.1
 program_devs:       ["Michael Cvitanovich"]
 program_web:        "galacticwingcommander"    

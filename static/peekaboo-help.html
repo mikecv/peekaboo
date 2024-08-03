@@ -16,13 +16,15 @@
    <body>
       <div id="mySidebar" class="sidebar">
          <a href="javascript:void(0)" class="closebtn" onclick="hide()">×</a>
+         <a href="#">Introduction</a>
          <a href="#">Overview</a>
+         <a href="#">About</a>
       </div>
       <div id="content">
          <button class="openbtn" id="openbtn" onclick="show()">☰</button>
 
          <h1>Peek-A-Boo</h1>
-         <h2>Overview</h2><a id="Overview"></a>
+         <h2>Introduction</h2><a id="Introduction"></a>
          <p>Steganography is the art of hiding in plain sight.
          This application is about hiding information in an electronic image, and in plain sight
          in this case by embedding information in variations in the colour of the image pixels.
@@ -33,6 +35,35 @@
          the amount of data embedded in the image should be restricted to avoid overly compromising
          the original image.
          </p>
-      </div>
+
+         <h2>Overview</h2><a id="Overview"></a>
+         <p>There are basically two functions that the application performs. Firstly embedding
+         a file or files into an image and saving the resultant image, and secondly,
+         being able to detect that an image has embedded data and being able to extract and save
+         these embedded data files.
+         </p>
+         <p>There are a number of limitations with this application of Steganography, a key one
+         being that the original images if compressed must use lossless compression.
+         For this reason only PNG images are accepted as images to embed data into. While there
+         are other lossless image formats, PNG was chosen in the first instance. Other formats
+         may be supported in the future. In addition to the PNG image format being supported,
+         only the colour information is used, that is, a transparency layer is not used,
+         whether present or not.
+         </p>
+         <p>
+         Interestingly, if the original image is sufficiently compressed (losslessly), it is
+         possible to embed the image into itself. Addmittedly, the resultant image may end
+         up less compressed and be of a larger file size than the original. Once extracted,
+         the embedded image will be identical to the original image. While this is possible,
+         it may be obvious that the image containging the embedded image has been modified.
+         </p>
+
+         <h2>About</h2><a id="About"></a>
+         <p style="font-weight: bold;"">Peek-A-Boo</p>
+         <p>A Steganography Application.</p>
+         <p>By: galacticwingcommander@gmail.com</p>
+         <p>Version 0.1.0</p>
+         <p>2024</p>
+         </div>
    </body>
 </html>

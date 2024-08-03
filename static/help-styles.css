@@ -25,6 +25,7 @@
 
 .sidebar a:hover {
    color: #0f3c6d;
+   font-weight: Bold;
 }
 
 .sidebar .closebtn {
@@ -101,7 +102,7 @@ h1 {
    text-align:left;
    margin-top: 0.5em;
    margin-bottom: 0.5em;
-    font-size: 2em;
+   font-size: 2em;
    font-weight: bold;
 }
 
