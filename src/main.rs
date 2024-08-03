@@ -2,12 +2,13 @@
 
 use log::info;
 use log4rs;
-use actix_files as fs;
+use actix_files as fsx;
 use actix_multipart::Multipart;
 use actix_web::{get, post, web, App, HttpServer, HttpResponse, Responder};
 use chrono::Utc;
 use futures_util::stream::{StreamExt, TryStreamExt};
 use lazy_static::lazy_static;
+use std::fs;
 use std::collections::HashMap;
 use std::env::temp_dir;
 use std::fs::create_dir_all;
@@ -243,6 +244,19 @@ async fn embed(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>>
     }
 }
 
+async fn help(settings: web::Data<Settings>) -> impl Responder {
+    // Help endpoint function
+    // Read the help file.
+    let help_file_content = fs::read_to_string("./static/peekaboo-help.html")
+        .expect("Unable to read help file");
+
+    // Replace the version placeholder with the actual version number from settings.
+    // Repeat as necessary for other setting information required in help.
+    let help_content = help_file_content.replace("{{version}}", &settings.program_ver);
+
+    HttpResponse::Ok().content_type("text/html").body(help_content)
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Logging configuration held in log4rs.yml .
@@ -261,12 +275,14 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(img_steg.clone()))
-            .service(fs::Files::new("/secrets", "./secrets").show_files_listing())
+            .app_data(web::Data::new(settings.clone()))
+            .service(fsx::Files::new("/secrets", "./secrets").show_files_listing())
             .service(intro)
             .service(upload)
             .service(extract)
             .service(embed)
             .service(actix_files::Files::new("/static", "./static").show_files_listing())
+            .route("/help", web::get().to(help))
     })
     .bind("127.0.0.1:8080")?
     .run()
