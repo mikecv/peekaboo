@@ -71,17 +71,17 @@
          The only proviso is that collective size of all the files is within the embedding
          capacity of the host image, noting that the embedding capacity is a function of the
          number of pixels, colour planes, and colour plain depth of the host image.
-         For example, for a 500x500 pixel image with 8 bit RGB colour depth, the embedding
+         For example, for a 600x400 pixel image with 8 bit RGB colour depth, the embedding
          capacity of the image is:
          </p>
          <p class="eq">
-         500 x 500 x 3 x 8 = 6 MB
+         (600 x 400)pixels x 3 colours/pixel x 1 byte/colour = 720,000 bytes
          </p>
          <p>The embedding capacity will be less than that quoted above as some of the capacity
          is used up to store details of the embedded files, e.g. number of files, size of
          each file, the filenames etc. Additionally, you may not want to use the full
          capacity as the more data that is embedded the higher the potential that changes
-         to host image will be noticeable.
+         to the host image will be noticeable.
          </p>
 
          <a id="Extracting"></a>
