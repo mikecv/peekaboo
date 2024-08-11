@@ -18,11 +18,12 @@
          <a href="javascript:void(0)" class="closebtn" onclick="hide()">×</a>
          <a href="#Introduction">Introduction</a>
          <a href="#Overview">Overview</a>
+         <a href="#Uploading">Uploading</a>
          <a href="#Embedding">Embedding</a>
          <a href="#Extracting">Extracting</a>
          <a href="#About">About</a>
       </div>
-      <div id="content">
+      <div id="content" style="padding-left: 50px;">
          <button class="openbtn" id="openbtn" onclick="show()">☰</button>
 
          <h1>Peek-A-Boo</h1>
@@ -60,6 +61,17 @@
          up less compressed and be of a larger file size than the original. Once extracted,
          the embedded image will be identical to the original image. While this is possible,
          it may however be obvious that the image containing the embedded image has been modified.
+         </p>
+
+         <a id="Uploading"></a>
+         <h2>Uploading</h2>
+         <p>The first step before embedding files into an image, or extracting embedded files
+         from an image, is to upload the source image. Images used to embed files must be
+         lossless images, and currently only PNG images are supported.
+         </p>
+         <p>The first step is to browse to the source image, which could be an encodded image,
+         or it could be an image you want to embed files into. Either way you start by selecting
+         the <i><b>"Browse for Image"</i></b> button.
          </p>
 
          <a id="Embedding"></a>
