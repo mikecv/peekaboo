@@ -44,11 +44,12 @@ document.getElementById('imageUpload').addEventListener('change', function(event
     const embedButton = document.getElementById('embedButton');
     const resultsContainer = document.getElementById('results-text');
 
-    // Hide buttons initially
+    // Hide buttons initially.
     console.log("Hiding upload, extract, and embed buttons.");
     uploadButton.style.display = 'none';
     extractButton.style.display = 'none';
     embedButton.style.display = 'none';
+    console.log("Clearing thumbnails and processing results.");
     clearThumbnails();
     clearProcessingResults();
 
@@ -59,12 +60,12 @@ document.getElementById('imageUpload').addEventListener('change', function(event
         thumbnailContainer.id = 'thumbnailContainer';
         thumbnailContainer.classList.add('thumbnail-container');
         resultsContainer.appendChild(thumbnailContainer);
-        console.log("Created new thumbnailContainer and appended to resultsContainer.");
+        console.log("Created new thumbnail container and appended to results container.");
     } else {
-        console.log("Using existing thumbnailContainer.");
+        console.log("Using existing thumbnail container.");
     }
 
-    // Handle file selection.
+    // Handle embeded file type selection.
     if (file) {
         fileLabel.textContent = file.name;
         if (file.type === 'image/png') {
@@ -167,6 +168,8 @@ document.getElementById('embedButton').addEventListener('click', function() {
     fileEmbedList.innerHTML = '';
     fileEmbedList.filesArray = [];
 
+    // Display files to embed section.
+    console.log("Displaying files to embed section.");
     embedSection.style.display = 'block';
 });
 
@@ -192,7 +195,7 @@ document.getElementById('fileEmbed').addEventListener('change', function(event) 
     console.log("File list updated from user selection.", files);
 });
 
-// Event listener for commit to files to embed.
+// Event listener for commit files to embed.
 document.querySelector('label[for="fileEmbed"]').addEventListener('click', function() {
     console.log("Committing files for embedding...");
     document.getElementById('fileEmbed').click();
@@ -215,6 +218,7 @@ document.getElementById('embedSubmitButton').addEventListener('click', function(
     modal.style.display = 'block';
 });
 
+// Event listener for submiting embed password.
 document.getElementById('embedPasswordSubmitButton').addEventListener('click', function() {
     console.log("Embed files submit button pressed.");
     const password = document.getElementById('embedPasswordInput').value;
@@ -225,6 +229,8 @@ document.getElementById('embedPasswordSubmitButton').addEventListener('click', f
     performEmbedding(password);
 });
 
+// Event listener for submiting embed password.
+// Submitting with enter key instead of submit button.
 document.getElementById('embedPasswordInput').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
         console.log("Enter key pressed to submit files for embedding.");
@@ -233,6 +239,7 @@ document.getElementById('embedPasswordInput').addEventListener('keypress', funct
     }
 });
 
+// Embedding password worker function.
 function performEmbedding(password = '') {
     const fileEmbedList = document.getElementById('fileEmbedList');
     const embedFiles = fileEmbedList.filesArray || [];
@@ -265,7 +272,7 @@ function performEmbedding(password = '') {
         return response.json();
     })
     .then(data => {
-        console.log("Received data from /embed:", data);
+        console.log("Received data from /embed endpoint.");
         const resultsElement = document.getElementById('processingResults');
         resultsElement.textContent = `File(s) embedded: ${data.embedded}, Duration: ${data.time}`;
 
@@ -307,36 +314,43 @@ function performEmbedding(password = '') {
 
 document.querySelectorAll('.close').forEach(closeButton => {
     closeButton.addEventListener('click', function() {
+        console.log("Query selector clicked");
         const modal = this.closest('.modal');
         modal.style.display = 'none';
     });
 });
 
+// Event listener for extract button selected.
 document.getElementById('extractButton').addEventListener('click', function() {
     if (requiresPassword) {
         // Display password modal dialog.
         const modal = document.getElementById('passwordModal');
         modal.style.display = 'block';
     } else {
+        console.log("Performing embedded file extraction.");
         performExtraction();
     }
 });
 
+// Event listener for extract password submit.
 document.getElementById('extractPasswordSubmitButton').addEventListener('click', function() {
     const password = document.getElementById('submitPasswordInput').value;
     const modal = document.getElementById('passwordModal');
     modal.style.display = 'none';
+    console.log("Performing embedded file extraction (with password).");
     performExtraction(password);
 });
 
+// Event listener for enter key to submit extraction password.
 document.getElementById('submitPasswordInput').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
-        console.log("Enter key pressed to submit files for extraction.");
+        console.log("Enter key pressed to perform extraction.");
         event.preventDefault();
         document.getElementById('extractPasswordSubmitButton').click();
     }
 });
 
+// Worker function to perform extraction.
 function performExtraction(password = '') {
     // Show the progress spinner.
     showSpinner();
@@ -344,6 +358,7 @@ function performExtraction(password = '') {
     const formData = new FormData();
     formData.append('password', password);
 
+    console.log("Posting to /extract endpoint.");
     fetch('/extract', {
         method: 'POST',
         body: new URLSearchParams(formData)
@@ -358,6 +373,7 @@ function performExtraction(password = '') {
         return response.json();
     })
     .then(data => {
+        console.log("Received data from /extract endpoint.");
         const resultsElement = document.getElementById('processingResults');
         resultsElement.textContent = `File(s) extracted: ${data.extracted}, Duration: ${data.time}`;
 
@@ -452,8 +468,10 @@ document.querySelector('.close').addEventListener('click', function() {
 // Function to toggle border on an image.
 function toggleBorder(imgElement, borderOn) {
     if (borderOn) {
+        console.log('Setting border ON for image.');
         imgElement.classList.add('border-on');
     } else {
+        console.log('Setting border OFF for image.');
         imgElement.classList.remove('border-on');
     }
 }
