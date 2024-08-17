@@ -34,11 +34,19 @@
         <img id="thumbnail" class="thumbnail" src="" alt="Browsed image thumbnail will appear here" style="display:none;">
     </p>
 
-    <div>
-        <div id="results-text" class="results-thumbnails"></div>
-        <p id="processingResults" class="results-text" style="text-align:center;"></p>
-    </div>
+    <p style="text-align:center;">
+        <!-- Thumbnail Container -->
+        <div id="thumbnailContainer" class="thumbnail-container">
+            <img id="originalThumbnail" class="thumbnail" src="" alt="Browsed image thumbnail will appear here" style="display:none;">
+        </div>
+    </p>        
 
+    <!-- Results Box for extracted files or processing results -->
+    <div class="results-container">
+        <div id="results-text" class="results-text"></div>
+        <div id="processingResults" class="processing-results"></div>
+    </div>
+    
     <!-- New Divs for Embedded Image and Results -->
     <div id="embeddedImageContainer" style="text-align:center; display:none;">
         <img id="embeddedImageThumbnail" class="thumbnail" src="" alt="Embedded image thumbnail will appear here">

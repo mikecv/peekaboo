@@ -53,7 +53,7 @@ document.getElementById('imageUpload').addEventListener('change', function(event
     clearThumbnails();
     clearProcessingResults();
 
-    // Create a container for the thumbnail and results if not already present.
+    // Create a container for the thumbnail if not already present.
     let thumbnailContainer = document.getElementById('thumbnailContainer');
     if (!thumbnailContainer) {
         thumbnailContainer = document.createElement('div');
@@ -216,6 +216,12 @@ document.getElementById('embedSubmitButton').addEventListener('click', function(
     console.log("Getting embed password.");
     const modal = document.getElementById('embedPasswordModal');
     modal.style.display = 'block';
+
+    // Focus on the password input field.
+    const passwordInput = document.getElementById('embedPasswordInput');
+    if (passwordInput) {
+        passwordInput.focus();
+    }   
 });
 
 // Event listener for submiting embed password.
@@ -278,27 +284,15 @@ function performEmbedding(password = '') {
 
         if (data.thumbnail) {
             console.log("Displaying thumbnail of image after embedding.");
-            const thumbnailContainer = document.getElementById('results-text');
-            thumbnailContainer.innerHTML = '';
-            const thumbnailDiv = document.createElement('div');
-            thumbnailDiv.classList.add('thumbnail-container');
+            
+            // Clear only the embedding results container, not the original thumbnail.
+            const thumbnailContainer = document.getElementById('embeddedImageContainer');
+            thumbnailContainer.style.display = 'block';
+            const embeddedImageThumbnail = document.getElementById('embeddedImageThumbnail');
+            embeddedImageThumbnail.src = data.thumbnail;
 
-            const a = document.createElement('a');
-            a.href = data.thumbnail;
-            a.target = '_blank'; // Open in new tab
-            const thumbnail = document.createElement('img');
-            thumbnail.src = data.thumbnail;
-            thumbnail.classList.add('thumbnail');
-            a.appendChild(thumbnail);
-            thumbnailDiv.appendChild(a);
-
-            const fileName = document.createElement('p');
-            fileName.textContent = data.filename;
-            fileName.classList.add('thumbnail-filename');
-            thumbnailDiv.appendChild(fileName);
-            console.log("Embedding thumbnail", fileName);
-
-            thumbnailContainer.appendChild(thumbnailDiv);
+            const embeddedFileName = document.getElementById('embeddedImageFileName');
+            embeddedFileName.textContent = data.filename;
         } else {
             console.error('Thumbnail URL is missing or invalid');
         }
@@ -326,6 +320,12 @@ document.getElementById('extractButton').addEventListener('click', function() {
         // Display password modal dialog.
         const modal = document.getElementById('passwordModal');
         modal.style.display = 'block';
+
+        // Focus on the password input field.
+        const passwordInput = document.getElementById('submitPasswordInput');
+        if (passwordInput) {
+            passwordInput.focus();
+        }   
     } else {
         console.log("Performing embedded file extraction.");
         performExtraction();
@@ -376,10 +376,21 @@ function performExtraction(password = '') {
         console.log("Received data from /extract endpoint.");
         const resultsElement = document.getElementById('processingResults');
         resultsElement.textContent = `File(s) extracted: ${data.extracted}, Duration: ${data.time}`;
-
+    
+        // Preserve the original image thumbnail by cloning it.
+        const originalImageDiv = document.getElementById('originalThumbnail');
         const resultsTextDiv = document.getElementById('results-text');
+    
+        // Clear extracted file thumbnails only.
         resultsTextDiv.innerHTML = '';
-
+    
+        // Re-append the original image thumbnail if it exists (cloneNode ensures it's not detached).
+        // Deep clone the original thumbnail and append.
+        if (originalImageDiv) {
+            const originalClone = originalImageDiv.cloneNode(true);
+            resultsTextDiv.appendChild(originalClone);
+        }
+       
         const files = JSON.parse(data.files);
         files.forEach(file => {
             const fileDiv = document.createElement('div');
