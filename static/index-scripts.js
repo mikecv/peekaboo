@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function clearThumbnails() {
     console.log("Clearing any result thumbnails.");
     const resultsTextDiv = document.getElementById('results-text');
+    const embededThumbnailContainer = document.getElementById('embeddedImageContainer');
+    embededThumbnailContainer.style.display = 'none';
     resultsTextDiv.innerHTML = '';
 }
 
