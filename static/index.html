@@ -21,25 +21,20 @@
         <p style="text-align:center;">
             <label for="imageUpload" class="custom-upload">Browse for Image</label>
             <input type="file" id="imageUpload" accept="image/png" style="display: none;">
-            <span id="fileLabel"></span>
         </p>
-        <p class="button-group" style="text-align:center;">
+
+        <div id="thumbnailContainer" class="thumbnail-container" style="text-align:center;">
+            <img id="originalThumbnail" class="thumbnail" src="" alt="Browsed image thumbnail will appear here" style="display:none;">
+            <span id="fileLabel"></span>
+        </div>
+
+        </p>
+            <p class="button-group" style="text-align:center;">
             <button id="uploadButton" class="custom-upload" style="display: none;">Upload</button>
             <button id="embedButton" class="custom-upload" style="display: none;">Embed</button>
             <button id="extractButton" class="custom-upload" style="display: none;">Extract</button>
         </p>
     </div>
-
-    <p style="text-align:center;">
-        <img id="thumbnail" class="thumbnail" src="" alt="Browsed image thumbnail will appear here" style="display:none;">
-    </p>
-
-    <p style="text-align:center;">
-        <!-- Thumbnail Container -->
-        <div id="thumbnailContainer" class="thumbnail-container">
-            <img id="originalThumbnail" class="thumbnail" src="" alt="Browsed image thumbnail will appear here" style="display:none;">
-        </div>
-    </p>        
 
     <!-- Results Box for extracted files or processing results -->
     <div class="results-container">

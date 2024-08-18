@@ -98,10 +98,17 @@ document.getElementById('imageUpload').addEventListener('change', function(event
                 uploadButton.style.display = 'block';
             }
             reader.readAsDataURL(file);
+
+            uploadButton.style.display = 'block';
+            fileLabel.textContent = file.name;
+            fileLabel.style.display = 'inline';
+            thumbnailContainer.style.display = 'block';
         } else {
             alert('Please select a PNG image.');
             console.log("Hiding upload button for invalid browsed image.");
             uploadButton.style.display = 'none';
+            fileLabel.style.display = 'none';
+            thumbnailContainer.style.display = 'none';
         }
     } else {
         fileLabel.textContent = 'No file selected';
