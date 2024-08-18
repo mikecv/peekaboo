@@ -144,7 +144,8 @@ async fn extract(
 
             // Respond with extraction status to display on UI.
             response_data.insert("extracted", "True".to_string());
-            let duration_str = format!("{:?}", steg.extract_duration);
+            let test_time_ms:f64 = steg.extract_duration.as_millis() as f64 / 1000.0 as f64;
+            let duration_str = format!("{:.3} sec", test_time_ms);
             response_data.insert("time", duration_str);
 
             // Respond with names of extracted files.
@@ -155,7 +156,8 @@ async fn extract(
         Err(_e) => {
             // Respond with failed extraction status to display on UI.
             response_data.insert("extracted", "False".to_string());
-            let duration_str = format!("{:?}", steg.extract_duration);
+            let test_time_ms:f64 = steg.extract_duration.as_millis() as f64 / 1000.0 as f64;
+            let duration_str = format!("{:.3} sec", test_time_ms);
             response_data.insert("time", duration_str);
         }
     }
@@ -224,7 +226,8 @@ async fn embed(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>>
             // Embedding successful, respond with embedding status.
             let mut response_data = HashMap::new();
             response_data.insert("embedded", "True".to_string());
-            let duration_str = format!("{:?}", steg.embed_duration);
+            let test_time_ms:f64 = steg.embed_duration.as_millis() as f64 / 1000.0 as f64;
+            let duration_str = format!("{:.3} sec", test_time_ms);
             response_data.insert("time", duration_str);
             response_data.insert("thumbnail", wrt_path_string_clone.clone());
             response_data.insert("filename", wrt_path_string_clone.clone());

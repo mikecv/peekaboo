@@ -256,11 +256,20 @@ impl Steganography {
         // in an image.
         // Here capacity is in bytes.
         if cont_ckh == true {
-            let img_bytes: u32 = self.pic_width * self.pic_height * self.pic_col_planes as u32;
-            let _embed_bytes: f32 = img_bytes as f32 * self.settings.max_embed_ratio;
+            let _embed_bytes: u32 = self.pic_width * self.pic_height * self.pic_col_planes as u32;
             self.embed_capacity = _embed_bytes as u64;
 
-            info!("Approx embedding capacity (bytes): {}", self.embed_capacity);
+            info!("Absolute host file capacity (bytes): {}", self.embed_capacity);
+
+            // There is a fixed amount of capacity that must be reserved.
+            // Allocation for pic code preamble.
+            // Allocation 1 byte for is password protected
+            // Allocation 32 bytes for password
+            // Allocation 3 bytes for number of files
+
+            self.embed_capacity = self.embed_capacity - self.settings.prog_code.len() as u64 - 36;
+
+            info!("Embedding capacity (bytes): {}", self.embed_capacity);
         }
 
         // Check if the file is already pic coded.
@@ -297,7 +306,7 @@ impl Steganography {
     pub fn check_for_code(&mut self) {
         // First check if file is even large enough to hold a code.
         // Can do this by checking emdedding capacity.
-        if self.embed_capacity < self.settings.min_capacity {
+        if self.embed_capacity < 1 {
             warn!("Capacity less than minimum for coding (bytes): {}", self.embed_capacity);
             self.pic_coded = false;
             return;
