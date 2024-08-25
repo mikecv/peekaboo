@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/index-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="/static/favicon.png">
     <title>Peek-A-Boo</title>
 </head>
@@ -66,21 +67,31 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <p>Enter Password:</p>
-            <input type="password" id="embedPasswordInput">
+            <div class="password-container">
+                <input type="password" id="embedPasswordInput">
+                <span class="toggle-password" onclick="togglePasswordVisibility('embedPasswordInput', 'embedEyeIcon')">
+                    <i id="embedEyeIcon" class="fa fa-eye"></i>
+                </span>
+            </div>
             <button id="embedPasswordSubmitButton">Submit</button>
         </div>
     </div>
 
-    <!-- Password Modal -->
+    <!-- Password Modal for Extracting -->
     <div id="extractPasswordModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <p>Enter Password:</p>
-            <input type="password" id="extractPasswordInput">
+            <div class="password-container">
+                <input type="password" id="extractPasswordInput">
+                <span class="toggle-password" onclick="togglePasswordVisibility('extractPasswordInput', 'extractEyeIcon')">
+                    <i id="extractEyeIcon" class="fa fa-eye"></i>
+                </span>
+            </div>
             <button id="extractPasswordSubmitButton">Submit</button>
         </div>
     </div>
-
+    
     <!-- Include JS script functions. -->
     <script type="text/javascript" src="/static/index-scripts.js"></script>
 

@@ -245,26 +245,26 @@ p {
     object-fit: contain;
 }
 
-/*
-.video-thumbnail-container::before,
-.video-thumbnail-container::after {
-    content: '';
-    position: absolute;
-    top: 5px;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: repeating-linear-gradient(
-        90deg,
-        black 0px,
-        black 5px,
-        transparent 5px,
-        transparent 10px
-    );
+.password-container {
+    position: relative;
+    display: inline-block;
 }
 
-.video-thumbnail-container::after {
-    top: auto;
-    bottom: 5px;
+#embedPasswordInput,
+#extractPasswordInput {
+    font-size: 18px;
+    height: auto; 
+    padding: 10px;
 }
-*/
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.toggle-password i {
+    font-size: 1.2em;
+}
