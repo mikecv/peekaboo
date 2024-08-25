@@ -327,11 +327,11 @@ document.querySelectorAll('.close').forEach(closeButton => {
 document.getElementById('extractButton').addEventListener('click', function() {
     if (requiresPassword) {
         // Display password modal dialog.
-        const modal = document.getElementById('passwordModal');
+        const modal = document.getElementById('extractPasswordModal');
         modal.style.display = 'block';
 
         // Focus on the password input field.
-        const passwordInput = document.getElementById('submitPasswordInput');
+        const passwordInput = document.getElementById('extractPasswordInput');
         if (passwordInput) {
             passwordInput.focus();
         }   
@@ -343,15 +343,15 @@ document.getElementById('extractButton').addEventListener('click', function() {
 
 // Event listener for extract password submit.
 document.getElementById('extractPasswordSubmitButton').addEventListener('click', function() {
-    const password = document.getElementById('submitPasswordInput').value;
-    const modal = document.getElementById('passwordModal');
+    const password = document.getElementById('extractPasswordInput').value;
+    const modal = document.getElementById('extractPasswordModal');
     modal.style.display = 'none';
     console.log("Performing embedded file extraction (with password).");
     performExtraction(password);
 });
 
 // Event listener for enter key to submit extraction password.
-document.getElementById('submitPasswordInput').addEventListener('keypress', function(event) {
+document.getElementById('extractPasswordInput').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
         console.log("Enter key pressed to perform extraction.");
         event.preventDefault();
