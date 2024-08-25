@@ -636,6 +636,8 @@ impl Steganography {
             .and_then(|ext| ext.to_str())
             .unwrap_or("");
         let mime_type = get_mime_type(file_extension);
+        info!("Data file of mime type: {:?}" , mime_type);
+
 
         // Push the filename onto the vector array so that we have a list of all
         // files written.
@@ -660,6 +662,10 @@ fn get_mime_type(extension: &str) -> &str {
         "jpg" | "jpeg" => "image/jpeg",
         "png" => "image/png",
         "gif" => "image/gif",
+        "mp3" => "audio/mpeg",
+        "mp4" => "video/mp4",
+        "pdf" => "application/pdf",
+        "gz" => "application/x-tar",
         // Add other extensions and their MIME types as needed.
         _ => "application/octet-stream",
     }
