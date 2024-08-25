@@ -41,11 +41,11 @@ p {
     margin: 0;
 }
 
+/* Image upload button. */
 .custom-upload {
     margin: 0 auto;
     display: inline-block;
     padding: 10px 20px;
-    cursor: pointer;
     background-color: #007bff;
     color: white;
     border-radius: 4px;
@@ -60,10 +60,11 @@ p {
     border-color: #0056b3;
 }
 
-#fileLabel {
-    margin-left: 10px;
-    font-size: 1.0em;
-    font-style: italic;
+/* Imaage container and image thumbnails. */
+.thumbnail-container {
+    position: relative;
+    display: inline-block;
+    text-align: center;
 }
 
 .thumbnail {
@@ -71,6 +72,16 @@ p {
     margin: 10px auto;
     max-width: 150px;
     max-height: 150px;
+}
+
+.thumbnail:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+#fileLabel {
+    margin-left: 10px;
+    font-size: 1.0em;
+    font-style: italic;
 }
 
 .results-text {
@@ -233,3 +244,27 @@ p {
     height: auto;
     object-fit: contain;
 }
+
+/*
+.video-thumbnail-container::before,
+.video-thumbnail-container::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: repeating-linear-gradient(
+        90deg,
+        black 0px,
+        black 5px,
+        transparent 5px,
+        transparent 10px
+    );
+}
+
+.video-thumbnail-container::after {
+    top: auto;
+    bottom: 5px;
+}
+*/

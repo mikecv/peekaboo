@@ -454,7 +454,7 @@ function performExtraction(password = '') {
                         // Draw the first frame onto the canvas.
                         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-                        // Create the img element for the thumbnail
+                        // Create the img element for the thumbnail.
                         const imgThumbnail = document.createElement('img');
                         imgThumbnail.src = canvas.toDataURL('image/png');
                         imgThumbnail.alt = file.name;
@@ -470,7 +470,7 @@ function performExtraction(password = '') {
                         fileName.classList.add('thumbnail-filename');
                         fileDiv.appendChild(fileName);
             
-                        // Clean up the hidden video element
+                        // Clean up the hidden video element.
                         document.body.removeChild(video);
                     });
             
