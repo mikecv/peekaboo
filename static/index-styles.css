@@ -140,8 +140,8 @@ p {
 }
 
 .results-text img.thumbnail {
-    max-width: 100px;
-    max-height: 100px;
+    max-width: 200px;
+    max-height: 200px;
     border: 2px solid transparent;
 }
 
@@ -223,4 +223,13 @@ p {
 
 #overlay.active {
     display: flex;
+}
+
+/* Basic video thumbnail styling */
+.video-thumbnail {
+    display: inline-block;
+    position: relative;
+    max-width: 200px;
+    height: auto;
+    object-fit: contain;
 }

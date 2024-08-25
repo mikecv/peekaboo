@@ -428,13 +428,66 @@ function performExtraction(password = '') {
                 fileName.textContent = file.name;
                 fileName.classList.add('thumbnail-filename');
                 fileDiv.appendChild(fileName);
-
-            } else if (file.type.startsWith('text/')) {
-                // TEXT mime types.
-                // Show image as text thumbnail.
+            }
+            else if (file.type.startsWith('video/')) {
+                //
+                // VIDEO mime types.
+                // Show video as thumbnail (first frame).
+                //
                 const a = document.createElement('a');
                 a.href = file.path;
-                a.download = file.name; // Enable download
+                a.target = '_blank';
+            
+                const video = document.createElement('video');
+                video.src = file.path;
+                video.style.display = 'none';
+                document.body.appendChild(video);
+            
+                video.addEventListener('loadeddata', function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+            
+                    video.currentTime = 0;
+                    video.addEventListener('seeked', function() {
+                        // Draw the first frame onto the canvas.
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+                        // Create the img element for the thumbnail
+                        const imgThumbnail = document.createElement('img');
+                        imgThumbnail.src = canvas.toDataURL('image/png');
+                        imgThumbnail.alt = file.name;
+                        imgThumbnail.classList.add('thumbnail');
+                        imgThumbnail.classList.add('border-on');
+            
+                        a.appendChild(imgThumbnail);
+                        fileDiv.appendChild(a);
+            
+                        // Append the filename below the thumbnail.
+                        const fileName = document.createElement('p');
+                        fileName.textContent = file.name;
+                        fileName.classList.add('thumbnail-filename');
+                        fileDiv.appendChild(fileName);
+            
+                        // Clean up the hidden video element
+                        document.body.removeChild(video);
+                    });
+            
+                    // Trigger the 'seeked' event by setting the currentTime.
+                    video.currentTime = 0;  
+                });
+                // Start loading the meta-data.
+                video.load();
+            }
+            else if (file.type.startsWith('text/')) {
+                //
+                // TEXT mime types.
+                // Show image as text thumbnail.
+                //
+                const a = document.createElement('a');
+                a.href = file.path;
+                a.download = file.name;
                 const img = document.createElement('img');
                 img.src = '/static/icon-text.png';
                 img.alt = 'Text File Thumbnail';
@@ -446,12 +499,16 @@ function performExtraction(password = '') {
                 fileName.textContent = file.name;
                 fileName.classList.add('thumbnail-filename');
                 fileDiv.appendChild(fileName);
-            } else {
+            }
+            else if (file.type.startsWith('audio/')) {
+                // AUDIO mime types.
+                // Show sound file as text thumbnail.
                 const a = document.createElement('a');
                 a.href = file.path;
-                a.target = '_blank';
+                a.download = file.name;
                 const img = document.createElement('img');
-                img.src = '/static/icon-generic.png';
+                img.src = '/static/icon-audio.png';
+                img.alt = 'Audio File Thumbnail';
                 img.classList.add('thumbnail');
                 a.appendChild(img);
                 fileDiv.appendChild(a);
@@ -461,7 +518,58 @@ function performExtraction(password = '') {
                 fileName.classList.add('thumbnail-filename');
                 fileDiv.appendChild(fileName);
             }
+            else if (file.type.startsWith('application/pdf')) {
+                // PDF mime type.
+                // Show tar.gz archive as text thumbnail.
+                const a = document.createElement('a');
+                a.href = file.path;
+                a.download = file.name;
+                const img = document.createElement('img');
+                img.src = '/static/icon-pdf.png';
+                img.alt = 'PDF File Thumbnail';
+                img.classList.add('thumbnail');
+                a.appendChild(img);
+                fileDiv.appendChild(a);
 
+                const fileName = document.createElement('p');
+                fileName.textContent = file.name;
+                fileName.classList.add('thumbnail-filename');
+                fileDiv.appendChild(fileName);
+            }
+            else if (file.type.startsWith('application/x-tar')) {
+                // Archive tar.gz mime type.
+                // Show tar.gz archive as text thumbnail.
+                const a = document.createElement('a');
+                a.href = file.path;
+                a.download = file.name;
+                const img = document.createElement('img');
+                img.src = '/static/icon-archive.png';
+                img.alt = 'File Archive Thumbnail';
+                img.classList.add('thumbnail');
+                a.appendChild(img);
+                fileDiv.appendChild(a);
+
+                const fileName = document.createElement('p');
+                fileName.textContent = file.name;
+                fileName.classList.add('thumbnail-filename');
+                fileDiv.appendChild(fileName);
+            }
+            else {
+                const a = document.createElement('a');
+                a.href = file.path;
+                a.target = '_blank';
+                const img = document.createElement('img');
+                img.src = '/static/icon-generic.png';
+                img.alt = 'Generic File Thumbnail';
+                img.classList.add('thumbnail');
+                a.appendChild(img);
+                fileDiv.appendChild(a);
+
+                const fileName = document.createElement('p');
+                fileName.textContent = file.name;
+                fileName.classList.add('thumbnail-filename');
+                fileDiv.appendChild(fileName);
+            }
             resultsTextDiv.appendChild(fileDiv);
         });
 
