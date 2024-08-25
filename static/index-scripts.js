@@ -410,8 +410,10 @@ function performExtraction(password = '') {
             console.log('Extracted file of type: ' + file.type);
 
             if (file.type.startsWith('image/')) {
+                //
                 // IMAGE mime types.
-                // Show image as thumbnail.
+                // Show image as actual image thumbnail.
+                //
                 const a = document.createElement('a');
                 a.href = file.path;
                 a.target = '_blank';
@@ -432,53 +434,22 @@ function performExtraction(password = '') {
             else if (file.type.startsWith('video/')) {
                 //
                 // VIDEO mime types.
-                // Show video as thumbnail (first frame).
+                // Show as video thumbnail.
                 //
                 const a = document.createElement('a');
                 a.href = file.path;
-                a.target = '_blank';
-            
-                const video = document.createElement('video');
-                video.src = file.path;
-                video.style.display = 'none';
-                document.body.appendChild(video);
-            
-                video.addEventListener('loadeddata', function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-            
-                    video.currentTime = 0;
-                    video.addEventListener('seeked', function() {
-                        // Draw the first frame onto the canvas.
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-                        // Create the img element for the thumbnail.
-                        const imgThumbnail = document.createElement('img');
-                        imgThumbnail.src = canvas.toDataURL('image/png');
-                        imgThumbnail.alt = file.name;
-                        imgThumbnail.classList.add('thumbnail');
-                        imgThumbnail.classList.add('border-on');
-            
-                        a.appendChild(imgThumbnail);
-                        fileDiv.appendChild(a);
-            
-                        // Append the filename below the thumbnail.
-                        const fileName = document.createElement('p');
-                        fileName.textContent = file.name;
-                        fileName.classList.add('thumbnail-filename');
-                        fileDiv.appendChild(fileName);
-            
-                        // Clean up the hidden video element.
-                        document.body.removeChild(video);
-                    });
-            
-                    // Trigger the 'seeked' event by setting the currentTime.
-                    video.currentTime = 0;  
-                });
-                // Start loading the meta-data.
-                video.load();
+                a.download = file.name;
+                const img = document.createElement('img');
+                img.src = '/static/icon-video.png';
+                img.alt = 'Video File Thumbnail';
+                img.classList.add('thumbnail');
+                a.appendChild(img);
+                fileDiv.appendChild(a);
+
+                const fileName = document.createElement('p');
+                fileName.textContent = file.name;
+                fileName.classList.add('thumbnail-filename');
+                fileDiv.appendChild(fileName);
             }
             else if (file.type.startsWith('text/')) {
                 //
@@ -501,8 +472,10 @@ function performExtraction(password = '') {
                 fileDiv.appendChild(fileName);
             }
             else if (file.type.startsWith('audio/')) {
+                //
                 // AUDIO mime types.
-                // Show sound file as text thumbnail.
+                // Show as sound file thumbnail.
+                //
                 const a = document.createElement('a');
                 a.href = file.path;
                 a.download = file.name;
@@ -519,8 +492,10 @@ function performExtraction(password = '') {
                 fileDiv.appendChild(fileName);
             }
             else if (file.type.startsWith('application/pdf')) {
+                //
                 // PDF mime type.
-                // Show tar.gz archive as text thumbnail.
+                // Show as a PDF thumbnail.
+                //
                 const a = document.createElement('a');
                 a.href = file.path;
                 a.download = file.name;
@@ -537,8 +512,10 @@ function performExtraction(password = '') {
                 fileDiv.appendChild(fileName);
             }
             else if (file.type.startsWith('application/x-tar')) {
+                //
                 // Archive tar.gz mime type.
-                // Show tar.gz archive as text thumbnail.
+                // Show tar.gz archive as archive thumbnail.
+                //
                 const a = document.createElement('a');
                 a.href = file.path;
                 a.download = file.name;
@@ -555,6 +532,10 @@ function performExtraction(password = '') {
                 fileDiv.appendChild(fileName);
             }
             else {
+                //
+                // Not a specificly supported mime type.
+                // Show as a generic thumbnail.
+                //
                 const a = document.createElement('a');
                 a.href = file.path;
                 a.target = '_blank';
