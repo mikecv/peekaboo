@@ -44,7 +44,6 @@ document.getElementById('imageUpload').addEventListener('change', function(event
     const uploadButton = document.getElementById('uploadButton');
     const extractButton = document.getElementById('extractButton');
     const embedButton = document.getElementById('embedButton');
-    const resultsContainer = document.getElementById('results-text');
 
     // Hide buttons initially.
     console.log("Hiding upload, extract, and embed buttons.");
@@ -55,17 +54,10 @@ document.getElementById('imageUpload').addEventListener('change', function(event
     clearThumbnails();
     clearProcessingResults();
 
-    // Create a container for the thumbnail if not already present.
-    let thumbnailContainer = document.getElementById('thumbnailContainer');
-    if (!thumbnailContainer) {
-        thumbnailContainer = document.createElement('div');
-        thumbnailContainer.id = 'thumbnailContainer';
-        thumbnailContainer.classList.add('thumbnail-container');
-        resultsContainer.appendChild(thumbnailContainer);
-        console.log("Created new thumbnail container and appended to results container.");
-    } else {
-        console.log("Using existing thumbnail container.");
-    }
+    // Reset partial workflows if the exist.
+    // This allows aboarting a workflow and browsing of a new inage.
+    console.log("Image upload input changed - triggering resetWorkflow.");
+    resetWorkflow();
 
     // Handle embeded file type selection.
     if (file) {
@@ -599,4 +591,29 @@ function togglePasswordVisibility(inputId, iconId) {
         eyeIcon.classList.remove('fa-eye-slash');
         eyeIcon.classList.add('fa-eye');
     }
+}
+
+// Function to reset the workflow (clear all fields, thumbnails, and hide buttons).
+function resetWorkflow() {
+    console.log("Resetting workflow...");
+
+    // Clear file selection for embedding.
+    const fileEmbedInput = document.getElementById('fileEmbed');
+    fileEmbedInput.value = '';
+    const fileEmbedList = document.getElementById('fileEmbedList');
+    fileEmbedList.innerHTML = '';
+    fileEmbedList.filesArray = [];
+
+    // Clear any results or thumbnails.
+    clearThumbnails();
+    clearProcessingResults();
+
+    // Hide all action buttons.
+    document.getElementById('uploadButton').style.display = 'none';
+    document.getElementById('embedButton').style.display = 'none';
+    document.getElementById('extractButton').style.display = 'none';
+
+    // Hide embed section and any previous embedded image.
+    document.getElementById('embedSection').style.display = 'none';
+    document.getElementById('embeddedImageContainer').style.display = 'none';
 }
