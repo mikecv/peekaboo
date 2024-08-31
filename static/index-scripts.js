@@ -109,6 +109,11 @@ document.getElementById('imageUpload').addEventListener('change', function(event
     }
 });
 
+// Global variable to hold embedding capacity.
+// This will start out as the embedding capacity returned by the /upload endpoint,
+// and then be decremented as files are selected for embedding.
+let embeddingCapacity = 0;
+
 // Event listener for Upload button, and processing.
 document.getElementById('uploadButton').addEventListener('click', function() {
     console.log("Request to upload the browsed image.");
@@ -138,9 +143,15 @@ document.getElementById('uploadButton').addEventListener('click', function() {
         uploadButton.style.display = 'none';
         const resultsElement = document.getElementById('processingResults');
         console.log("Displaying results from /upload endpoint.");
+
+        // Store the initial embedding capacity.
+        embeddingCapacity = parseInt(data.capacity, 10);
+
+        // Embedding capacity will start with the rerurned value.
+        // It will be decremented as files are selected for embedding.
         resultsElement.textContent = `File coded: ${data.coded}, 
                                         Password protected: ${data.password},
-                                        Embedding capacity: ${data.capacity} bytes`;
+                                        Embedding capacity: ${embeddingCapacity} bytes`;
         
         requiresPassword = data.password === "True";
 
@@ -174,27 +185,89 @@ document.getElementById('embedButton').addEventListener('click', function() {
     embedSection.style.display = 'block';
 });
 
+// Function to update the (remaining) embedding capacity display.
+function updateEmbeddingCapacityDisplay() {
+    const resultsElement = document.getElementById('processingResults');
+    if (resultsElement) {
+        resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+    }
+}
+
+// Global variable to store the valid files to embed list.
+// That is, files that don't exceed the embedding capacity.
+let validFiles = [];
+
+// Function to update the embedding capacity display.
+// Only add files that fit within the embedded capacity limit.
+// Function to update the embedding capacity display
+function updateEmbeddingCapacityDisplay() {
+    const resultsElement = document.getElementById('processingResults');
+    if (resultsElement) {
+        resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+    }
+}
+
 // Event listener for files to embed browser.
 document.getElementById('fileEmbed').addEventListener('change', function(event) {
     console.log("Browsing for files to embed into uploaded image.");
-    const files = event.target.files;
+    const files = Array.from(event.target.files);
     const fileEmbedList = document.getElementById('fileEmbedList');
     const filesArray = fileEmbedList.filesArray || [];
+    let totalFileSize = 0;
 
-    // Add new files to the existing list.
-    for (let i = 0; i < files.length; i++) {
-        filesArray.push(files[i]);
+    // Calculate total file size for the current files selection.
+    files.forEach(file => {
+        totalFileSize += file.size;
+    });
 
-        const li = document.createElement('li');
-        li.textContent = files[i].name;
-        fileEmbedList.appendChild(li);
+    // Check if adding these files would exceed embedding capacity.
+    // If so, keep any previous selected files, but not the new selection.
+    if (totalFileSize > embeddingCapacity) {
+        // If it exceeds, show an alert and don't include the last file(s).
+        alert("You have exceeded the embedding capacity limit for this image. Please select smaller files.");
+        
+        // Only add files that fit within the capacity.
+        const fittingFiles = files.filter(file => file.size <= embeddingCapacity);
+
+        // Add the valid fitting files to the validFiles array.
+        validFiles.push(...fittingFiles);
+        
+        // Update embedding capacity by subtracting valid files' sizes.
+        fittingFiles.forEach(file => {
+            embeddingCapacity -= file.size;
+        });
+
+    } else {
+        // If all files fit, add them to validFiles.
+        validFiles.push(...files);
+
+        // Decrement embedding capacity for each valid file
+        files.forEach(file => {
+            embeddingCapacity -= file.size;
+        });
     }
 
-    // Store the updated list of files in the fileEmbedList element.
-    fileEmbedList.filesArray = filesArray;
+    // Update the embedding capacity display.
+    updateEmbeddingCapacityDisplay();
 
-    console.log("File list updated from user selection.", files);
+    // Clear the file input to allow for new selections.
+    event.target.value = '';
+
+    // Display the list of valid selected files.
+    displaySelectedFiles();
 });
+
+// Function to display the valid selected files.
+function displaySelectedFiles() {
+    const fileEmbedList = document.getElementById('fileEmbedList');
+     // Clear previous list.
+    fileEmbedList.innerHTML = '';
+    validFiles.forEach(file => {
+        const li = document.createElement('li');
+        li.textContent = `${file.name} (${file.size} bytes)`;
+        fileEmbedList.appendChild(li);
+    });
+}
 
 // Event listener for commit files to embed.
 document.querySelector('label[for="fileEmbed"]').addEventListener('click', function() {
@@ -205,13 +278,16 @@ document.querySelector('label[for="fileEmbed"]').addEventListener('click', funct
 // Event listener for embed files button.
 document.getElementById('embedSubmitButton').addEventListener('click', function() {
     const embedFiles = document.getElementById('fileEmbed').files;
-    if (embedFiles.length === 0) {
+
+    // Check if no files to submit, if so warn and prevent submit.
+    if (validFiles.length === 0) {
         console.log("No files selected to embed.");
         alert('Please select at least one file to embed.');
         return;
     }
 
-    console.log("File list created for user selection: ", embedFiles);
+    // Valid file list for submission.
+    console.log("Files selected for embedding: ", validFiles);
 
     // Display a modal dialog to enter a password (blank if not required).
     console.log("Getting embed password.");
@@ -254,11 +330,11 @@ function performEmbedding(password = '') {
 
     console.log("Inside function to post to embedding endpoint.");
 
-    for (let i = 0; i < embedFiles.length; i++) {
-        formData.append('files', embedFiles[i]);
-        console.log("Appending file to form data: ", embedFiles[i]);
-    }
-
+    // Add valid files to FormData
+    validFiles.forEach(file => {
+        formData.append('files', file);
+    });
+    
     formData.append('password', password);
 
     // Show the progress spinner.
