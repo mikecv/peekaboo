@@ -155,7 +155,7 @@ document.getElementById('uploadButton').addEventListener('click', function() {
         console.log("Initial embedding capacity without overhead: " + embeddingCapacity);
 
         // Medium and high levels for warnings on amount of capacicty left.
-        capacityMedium = parseInt(embeddingCapacity * 0.35, 10);
+        capacityMedium = parseInt(embeddingCapacity * 0.65, 10);
         capacityHigh = parseInt(embeddingCapacity * 0.5, 10);
         console.log("Embedding medium level: " + capacityMedium);
         console.log("Embedding high level: " + capacityHigh);
@@ -195,6 +195,12 @@ document.getElementById('embedButton').addEventListener('click', function() {
     const embedSection = document.getElementById('embedSection');
     const fileEmbedList = document.getElementById('fileEmbedList');
 
+    // Don't need the embed or extract buttons any more, so hide them.
+    // This reduces the reset path to just the Browse for new image button.
+    console.log("Hiding Embed and Extract buttons as not needed.");
+    extractButton.style.display = 'none';
+    embedButton.style.display = 'none';
+
     // Initialize the list of files to embed.
     console.log("Initialising list of files to embed.");
     fileEmbedList.innerHTML = '';
@@ -205,14 +211,6 @@ document.getElementById('embedButton').addEventListener('click', function() {
     embedSection.style.display = 'block';
 });
 
-// // Function to update the (remaining) embedding capacity display.
-// function updateEmbeddingCapacityDisplay() {
-//     const resultsElement = document.getElementById('processingResults');
-//     if (resultsElement) {
-//         resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
-//     }
-// }
-
 // Global variable to store the valid files to embed list.
 // That is, files that don't exceed the embedding capacity.
 let validFiles = [];
@@ -222,8 +220,24 @@ let validFiles = [];
 // Function to update the embedding capacity display
 function updateEmbeddingCapacityDisplay() {
     const resultsElement = document.getElementById('processingResults');
+
+    // Put border around capacity results, with colour according to criticality.
+    console.log("Remaining capacity: " + embeddingCapacity);
+    console.log("Medium level: " + capacityMedium);
+    console.log("Warning level: " + capacityHigh);
     if (resultsElement) {
-        resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+        if (embeddingCapacity < capacityHigh) {
+            resultsElement.className = 'results-text high';
+            resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+        }
+        else if (embeddingCapacity < capacityMedium) {
+            resultsElement.className = 'results-text medium';
+            resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+        }
+        else {
+            resultsElement.className = 'results-text low';
+            resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+        }
     }
 }
 
@@ -380,10 +394,11 @@ function performEmbedding(password = '') {
         console.log("Received data from /embed endpoint.");
         const resultsElement = document.getElementById('processingResults');
         resultsElement.textContent = `File(s) embedded: ${data.embedded}, Duration: ${data.time}`;
+        // <MDC> Need to do border according to success or failure.
 
         if (data.thumbnail) {
             console.log("Displaying thumbnail of image after embedding.");
-            
+
             // Clear only the embedding results container, not the original thumbnail.
             const thumbnailContainer = document.getElementById('embeddedImageContainer');
             thumbnailContainer.style.display = 'block';
