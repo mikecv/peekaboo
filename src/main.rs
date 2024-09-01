@@ -89,6 +89,7 @@ async fn upload(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>
             response_data.insert("coded", "False".to_string());
             response_data.insert("password", "False".to_string());
             response_data.insert("capacity", steg.embed_capacity.to_string());
+            response_data.insert("overhead", steg.overhead_per_file.to_string());
             if steg.pic_coded == true {
                 response_data.insert("coded", "True".to_string());
                 if steg.pic_has_pw == true {
@@ -218,7 +219,6 @@ async fn embed(mut payload: Multipart, steg: web::Data<Arc<Mutex<Steganography>>
             wrt_path.push(format!("{}.png",ts_string));
             let wrt_path_string = wrt_path.to_string_lossy().into_owned();
             let wrt_path_string_clone = wrt_path_string.clone();
-
 
             // Save the temporary output file.
             steg.save_image(wrt_path_string_clone.clone());

@@ -8,3 +8,10 @@ prog_code:          "PICCODER"
 byte_chunk:         50000
 secret_folder:      "./secrets"
 thumb_folder:       "./images"
+# Emedding costants.
+num_files_chars:    3
+len_filename_chars: 3
+file_len_chars:     10
+pw_protected_chars: 1
+pw_chars:           32
+

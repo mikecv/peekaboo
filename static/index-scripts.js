@@ -113,6 +113,11 @@ document.getElementById('imageUpload').addEventListener('change', function(event
 // This will start out as the embedding capacity returned by the /upload endpoint,
 // and then be decremented as files are selected for embedding.
 let embeddingCapacity = 0;
+// Also define warning and high embedding limits.
+let capacityMedium = 0;
+let capacityHigh = 0;
+// Also initialise parameter which is decremented for each file.
+let overheadPerFile = 0;
 
 // Event listener for Upload button, and processing.
 document.getElementById('uploadButton').addEventListener('click', function() {
@@ -146,13 +151,28 @@ document.getElementById('uploadButton').addEventListener('click', function() {
 
         // Store the initial embedding capacity.
         embeddingCapacity = parseInt(data.capacity, 10);
+        overheadPerFile = parseInt(data.overhead, 10);
+        console.log("Initial embedding capacity without overhead: " + embeddingCapacity);
+
+        // Medium and high levels for warnings on amount of capacicty left.
+        capacityMedium = parseInt(embeddingCapacity * 0.35, 10);
+        capacityHigh = parseInt(embeddingCapacity * 0.5, 10);
+        console.log("Embedding medium level: " + capacityMedium);
+        console.log("Embedding high level: " + capacityHigh);
+
+        // Overhead per file to use when calculating remaining capacity.
+        console.log("Overhead per embedded file: " + overheadPerFile);
+
+        // Need to add overhead for 1 file as a buffer.
+        embeddingCapacity -= overheadPerFile;
+        console.log("Initial embedding capacity: " + embeddingCapacity);
 
         // Embedding capacity will start with the rerurned value.
         // It will be decremented as files are selected for embedding.
         resultsElement.textContent = `File coded: ${data.coded}, 
                                         Password protected: ${data.password},
                                         Embedding capacity: ${embeddingCapacity} bytes`;
-        
+ 
         requiresPassword = data.password === "True";
 
         if (data.coded === "True") {
@@ -185,13 +205,13 @@ document.getElementById('embedButton').addEventListener('click', function() {
     embedSection.style.display = 'block';
 });
 
-// Function to update the (remaining) embedding capacity display.
-function updateEmbeddingCapacityDisplay() {
-    const resultsElement = document.getElementById('processingResults');
-    if (resultsElement) {
-        resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
-    }
-}
+// // Function to update the (remaining) embedding capacity display.
+// function updateEmbeddingCapacityDisplay() {
+//     const resultsElement = document.getElementById('processingResults');
+//     if (resultsElement) {
+//         resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+//     }
+// }
 
 // Global variable to store the valid files to embed list.
 // That is, files that don't exceed the embedding capacity.
@@ -216,8 +236,9 @@ document.getElementById('fileEmbed').addEventListener('change', function(event) 
     let totalFileSize = 0;
 
     // Calculate total file size for the current files selection.
+    // Include the overhead per file required when embendding files.
     files.forEach(file => {
-        totalFileSize += file.size;
+        totalFileSize += file.size + overheadPerFile;
     });
 
     // Check if adding these files would exceed embedding capacity.
@@ -234,7 +255,7 @@ document.getElementById('fileEmbed').addEventListener('change', function(event) 
         
         // Update embedding capacity by subtracting valid files' sizes.
         fittingFiles.forEach(file => {
-            embeddingCapacity -= file.size;
+            embeddingCapacity -= file.size + overheadPerFile;
         });
 
     } else {
@@ -242,8 +263,9 @@ document.getElementById('fileEmbed').addEventListener('change', function(event) 
         validFiles.push(...files);
 
         // Decrement embedding capacity for each valid file
+        // Include the overhead per file required when embendding files.
         files.forEach(file => {
-            embeddingCapacity -= file.size;
+            embeddingCapacity -= file.size + overheadPerFile;
         });
     }
 

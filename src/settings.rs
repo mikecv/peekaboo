@@ -10,4 +10,9 @@ pub struct Settings {
     pub byte_chunk: u32,
     pub secret_folder: String,
     pub thumb_folder: String,
+    pub num_files_chars: u8,
+    pub len_filename_chars: u8,
+    pub file_len_chars: u8,
+    pub pw_protected_chars: u8,
+    pub pw_chars: u8,
 }
