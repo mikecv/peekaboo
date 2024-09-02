@@ -157,8 +157,6 @@ document.getElementById('uploadButton').addEventListener('click', function() {
         // Medium and high levels for warnings on amount of capacicty left.
         capacityMedium = parseInt(embeddingCapacity * 0.65, 10);
         capacityHigh = parseInt(embeddingCapacity * 0.5, 10);
-        console.log("Embedding medium level: " + capacityMedium);
-        console.log("Embedding high level: " + capacityHigh);
 
         // Overhead per file to use when calculating remaining capacity.
         console.log("Overhead per embedded file: " + overheadPerFile);
@@ -223,8 +221,6 @@ function updateEmbeddingCapacityDisplay() {
 
     // Put border around capacity results, with colour according to criticality.
     console.log("Remaining capacity: " + embeddingCapacity);
-    console.log("Medium level: " + capacityMedium);
-    console.log("Warning level: " + capacityHigh);
     if (resultsElement) {
         if (embeddingCapacity < capacityHigh) {
             resultsElement.className = 'results-text high';
