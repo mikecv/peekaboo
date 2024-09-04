@@ -112,7 +112,9 @@ document.getElementById('imageUpload').addEventListener('change', function(event
 // Global variable to hold embedding capacity.
 // This will start out as the embedding capacity returned by the /upload endpoint,
 // and then be decremented as files are selected for embedding.
+let startingCapacity = 0;
 let embeddingCapacity = 0;
+let embedCapacityPercent = 0;
 // Also define warning and high embedding limits.
 let capacityMedium = 0;
 let capacityHigh = 0;
@@ -150,9 +152,10 @@ document.getElementById('uploadButton').addEventListener('click', function() {
         console.log("Displaying results from /upload endpoint.");
 
         // Store the initial embedding capacity.
+        startingCapacity = parseInt(data.capacity, 10);
         embeddingCapacity = parseInt(data.capacity, 10);
         overheadPerFile = parseInt(data.overhead, 10);
-        console.log("Initial embedding capacity without overhead: " + embeddingCapacity);
+        console.log("Initial embedding capacity without overhead: " + startingCapacity);
 
         // Medium and high levels for warnings on amount of capacicty left.
         capacityMedium = parseInt(embeddingCapacity * 0.65, 10);
@@ -165,7 +168,7 @@ document.getElementById('uploadButton').addEventListener('click', function() {
         embeddingCapacity -= overheadPerFile;
         console.log("Initial embedding capacity: " + embeddingCapacity);
 
-        // Embedding capacity will start with the rerurned value.
+        // Embedding capacity will start with the returned value.
         // It will be decremented as files are selected for embedding.
         resultsElement.textContent = `File coded: ${data.coded}, 
                                         Password protected: ${data.password},
@@ -220,20 +223,20 @@ function updateEmbeddingCapacityDisplay() {
     const resultsElement = document.getElementById('processingResults');
 
     // Put border around capacity results, with colour according to criticality.
-    console.log("Remaining capacity: " + embeddingCapacity);
     if (resultsElement) {
         if (embeddingCapacity < capacityHigh) {
             resultsElement.className = 'results-text high';
-            resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+            // resultsElement.textContent = `Embedding capacity remaining: ${embeddingCapacity} bytes ${embedCapacityPercent} %)`;
         }
         else if (embeddingCapacity < capacityMedium) {
             resultsElement.className = 'results-text medium';
-            resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+            // resultsElement.textContent = `Embedding capacity remaining: ${embeddingCapacity} bytes remaining.`;
         }
         else {
             resultsElement.className = 'results-text low';
-            resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes remaining.`;
+            // resultsElement.textContent = `Embedding capacity remaining: ${embeddingCapacity} bytes remaining.`;
         }
+        resultsElement.textContent = `Embedding capacity: ${embeddingCapacity} bytes (${embedCapacityPercent.toFixed(1)} %)`;
     }
 }
 
@@ -268,6 +271,9 @@ document.getElementById('fileEmbed').addEventListener('change', function(event) 
             embeddingCapacity -= file.size + overheadPerFile;
         });
 
+        // Calculate the percentage of original original capacity used.
+        embedCapacityPercent =  ((startingCapacity - embeddingCapacity) / startingCapacity) * 100;
+        console.log("Capacity used (%): " + embedCapacityPercent.toFixed(1));
     } else {
         // If all files fit, add them to validFiles.
         validFiles.push(...files);
@@ -277,6 +283,10 @@ document.getElementById('fileEmbed').addEventListener('change', function(event) 
         files.forEach(file => {
             embeddingCapacity -= file.size + overheadPerFile;
         });
+
+        // Calculate the percentage of original original capacity used.
+        embedCapacityPercent =  (embeddingCapacity / startingCapacity) * 100;
+        console.log("Capacity used (%): " + embedCapacityPercent.toFixed(1));
     }
 
     // Update the embedding capacity display.
@@ -290,6 +300,7 @@ document.getElementById('fileEmbed').addEventListener('change', function(event) 
 });
 
 // Function to display the valid selected files.
+// <MDC> Need to remove bullet on file list entries.
 function displaySelectedFiles() {
     const fileEmbedList = document.getElementById('fileEmbedList');
      // Clear previous list.
@@ -390,7 +401,7 @@ function performEmbedding(password = '') {
         console.log("Received data from /embed endpoint.");
         const resultsElement = document.getElementById('processingResults');
         resultsElement.textContent = `File(s) embedded: ${data.embedded}, Duration: ${data.time}`;
-        // <MDC> Need to do border according to success or failure.
+        // <MDC> Need to do border here according to success or failure.
 
         if (data.thumbnail) {
             console.log("Displaying thumbnail of image after embedding.");
@@ -712,6 +723,7 @@ function resetWorkflow() {
     const fileEmbedList = document.getElementById('fileEmbedList');
     fileEmbedList.innerHTML = '';
     fileEmbedList.filesArray = [];
+    validFiles = [];
 
     // Clear any results or thumbnails.
     clearThumbnails();
