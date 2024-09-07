@@ -505,20 +505,20 @@ function performExtraction(password = '') {
         const resultsElement = document.getElementById('processingResults');
         resultsElement.textContent = `File(s) extracted: ${data.extracted}, Duration: ${data.time}`;
     
+        // Show the thumbnails container
+        const extractedResultsContainer = document.getElementById('extractedResultsContainer');
+        extractedResultsContainer.style.display = 'block';
+    
+        const extractedFileResultsDiv = document.getElementById('extractedFileResults');
+        extractedFileResultsDiv.innerHTML = '';
+    
         // Preserve the original image thumbnail by cloning it.
         const originalImageDiv = document.getElementById('originalThumbnail');
-        const resultsTextDiv = document.getElementById('results-text');
-    
-        // Clear extracted file thumbnails only.
-        resultsTextDiv.innerHTML = '';
-
-        // Re-append the original image thumbnail if it exists (cloneNode ensures it's not detached).
-        // Deep clone the original thumbnail and append.
         if (originalImageDiv) {
             const originalClone = originalImageDiv.cloneNode(true);
-            resultsTextDiv.appendChild(originalClone);
+            extractedFileResultsDiv.appendChild(originalClone);
         }
-       
+               
         const files = JSON.parse(data.files);
         files.forEach(file => {
             const fileDiv = document.createElement('div');
@@ -670,7 +670,8 @@ function performExtraction(password = '') {
                 fileName.classList.add('thumbnail-filename');
                 fileDiv.appendChild(fileName);
             }
-            resultsTextDiv.appendChild(fileDiv);
+            // Append the fileDiv to the thumbnails container
+            extractedFileResultsDiv.appendChild(fileDiv);
         });
 
         if (data.extracted === "True") {

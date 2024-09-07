@@ -30,6 +30,14 @@ p {
     margin-bottom: 1.0em ;
   }
 
+li {
+    font-size: 1em;
+    color: black;
+	text-align:center;
+    font-style: italic;
+    list-style-type: none;
+}
+
 .button-group {
     display: flex;
     justify-content: center;
@@ -195,7 +203,7 @@ p {
 }
 
 .thumbnail-filename {
-    font-size: 10px;
+    font-size: 0.8em;
     font-style: italic;
     color: black;
 }
