@@ -437,6 +437,13 @@ document.querySelectorAll('.close').forEach(closeButton => {
 
 // Event listener for extract button selected.
 document.getElementById('extractButton').addEventListener('click', function() {
+
+    // Don't need the embed or extract buttons any more, so hide them.
+    // This reduces the reset path to just the Browse for new image button.
+    console.log("Hiding Embed and Extract buttons as not needed.");
+    extractButton.style.display = 'none';
+    embedButton.style.display = 'none';
+
     if (requiresPassword) {
         // Display password modal dialog.
         const modal = document.getElementById('extractPasswordModal');
@@ -504,7 +511,7 @@ function performExtraction(password = '') {
     
         // Clear extracted file thumbnails only.
         resultsTextDiv.innerHTML = '';
-    
+
         // Re-append the original image thumbnail if it exists (cloneNode ensures it's not detached).
         // Deep clone the original thumbnail and append.
         if (originalImageDiv) {
