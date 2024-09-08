@@ -1,3 +1,5 @@
+/* Main and default document styles.button-group */
+
 body {
     font-family: Arial, sans-serif;
     background-color: #c4cad8;
@@ -24,19 +26,21 @@ h1 {
 }
 
 p {
-    font-size: 1em;
+    font-size: 1.0em;
     line-height: 100%;
     margin-top: 0.25em ;
     margin-bottom: 1.0em ;
-  }
+}
 
 li {
-    font-size: 1em;
+    font-size: 1.0em;
     color: black;
 	text-align:center;
     font-style: italic;
     list-style-type: none;
 }
+
+/* General button styles. */
 
 .button-group {
     display: flex;
@@ -49,7 +53,8 @@ li {
     margin: 0;
 }
 
-/* Image upload button. */
+/* Image upload button and text. */
+
 .custom-upload {
     margin: 0 auto;
     display: inline-block;
@@ -60,7 +65,7 @@ li {
     border: 1px solid #007bff;
     text-align: center;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 1.0em;
 }
 
 .custom-upload:hover {
@@ -69,6 +74,7 @@ li {
 }
 
 /* Imaage container and image thumbnails. */
+
 .thumbnail-container {
     position: relative;
     display: inline-block;
@@ -82,6 +88,26 @@ li {
     max-height: 150px;
 }
 
+#fileLabel {
+    font-size: 0.6em;
+    font-style: italic;
+    font-weight: normal;
+    color: black;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#embeddedImageFileName {
+    font-size: 0.8em;
+    font-style: italic;
+    font-weight: normal;
+    color: black;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
 .thumbnail:hover {
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
@@ -91,6 +117,8 @@ li {
     font-size: 1.0em;
     font-style: italic;
 }
+
+/* Result test box styles.button-group */
 
 .results-text {
     font-size: 1.2em;
@@ -107,6 +135,8 @@ li {
     margin: 0 auto;
     max-width: 100%;
 }
+
+/* Result text box styles with status border.button-group */
 
 .results-text.coded {
     font-size: 1.0em;
@@ -158,6 +188,8 @@ li {
     margin: 10px auto;
 }
 
+/* Extraction results and thumbnail styles.button-group */
+
 .processing-results {
     text-align: center;
 }
@@ -208,6 +240,8 @@ li {
     color: black;
 }
 
+/* Effect stles for result thumbnails. */
+
 .modal {
     display: none;
     position: fixed;
@@ -232,7 +266,7 @@ li {
 .close {
     color: #aaa;
     float: right;
-    font-size: 28px;
+    font-size: 1.0px;
     font-weight: bold;
 }
 
@@ -242,6 +276,8 @@ li {
     text-decoration: none;
     cursor: pointer;
 }
+
+/* Wait spinner styling. */
 
 #overlay {
     position: fixed;
@@ -274,14 +310,7 @@ li {
     display: flex;
 }
 
-/* Basic video thumbnail styling */
-.video-thumbnail {
-    display: inline-block;
-    position: relative;
-    max-width: 200px;
-    height: auto;
-    object-fit: contain;
-}
+/* Styles for password popups. */
 
 .password-container {
     position: relative;
@@ -290,7 +319,7 @@ li {
 
 #embedPasswordInput,
 #extractPasswordInput {
-    font-size: 18px;
+    font-size: 1.0em;
     height: auto; 
     padding: 10px;
 }

@@ -21,7 +21,9 @@ function clearThumbnails() {
     console.log("Clearing any result thumbnails.");
     const resultsTextDiv = document.getElementById('results-text');
     const embededThumbnailContainer = document.getElementById('embeddedImageContainer');
+    const extractThumbnailContainer = document.getElementById('extractedResultsContainer');
     embededThumbnailContainer.style.display = 'none';
+    extractThumbnailContainer.style.display = 'none';
     resultsTextDiv.innerHTML = '';
 }
 
@@ -172,7 +174,7 @@ document.getElementById('uploadButton').addEventListener('click', function() {
         // It will be decremented as files are selected for embedding.
         resultsElement.textContent = `File coded: ${data.coded}, 
                                         Password protected: ${data.password},
-                                        Embedding capacity: ${embeddingCapacity} bytes`;
+                                        Embed capacity: ${embeddingCapacity} bytes`;
  
         requiresPassword = data.password === "True";
 
@@ -300,7 +302,6 @@ document.getElementById('fileEmbed').addEventListener('change', function(event) 
 });
 
 // Function to display the valid selected files.
-// <MDC> Need to remove bullet on file list entries.
 function displaySelectedFiles() {
     const fileEmbedList = document.getElementById('fileEmbedList');
      // Clear previous list.
@@ -401,7 +402,6 @@ function performEmbedding(password = '') {
         console.log("Received data from /embed endpoint.");
         const resultsElement = document.getElementById('processingResults');
         resultsElement.textContent = `File(s) embedded: ${data.embedded}, Duration: ${data.time}`;
-        // <MDC> Need to do border here according to success or failure.
 
         if (data.thumbnail) {
             console.log("Displaying thumbnail of image after embedding.");
@@ -409,11 +409,36 @@ function performEmbedding(password = '') {
             // Clear only the embedding results container, not the original thumbnail.
             const thumbnailContainer = document.getElementById('embeddedImageContainer');
             thumbnailContainer.style.display = 'block';
-            const embeddedImageThumbnail = document.getElementById('embeddedImageThumbnail');
-            embeddedImageThumbnail.src = data.thumbnail;
+    
+            // Instead of clearing the entire container, just remove the old thumbnail if necessary.
+            const oldThumbnail = document.getElementById('embeddedImageThumbnail');
+            if (oldThumbnail) {
+                oldThumbnail.remove();
+            }
+    
+            // Create the anchor element for opening in a new tab.
+            const imgLink = document.createElement('a');
+            imgLink.href = data.thumbnail;
+            imgLink.target = '_blank';
 
+            // Create the image element for the embedded image thumbnail.
+            const embeddedImageThumbnail = document.createElement('img');
+            embeddedImageThumbnail.id = 'embeddedImageThumbnail';
+            embeddedImageThumbnail.classList.add('thumbnail');
+            embeddedImageThumbnail.src = data.thumbnail;
+            embeddedImageThumbnail.alt = 'Embedded image thumbnail';
+
+            // Append the image inside the anchor, and the anchor inside the container
+            imgLink.appendChild(embeddedImageThumbnail);
+            thumbnailContainer.appendChild(imgLink);
+
+            // Check if the element for the file name exists before updating it.
             const embeddedFileName = document.getElementById('embeddedImageFileName');
-            embeddedFileName.textContent = data.filename;
+            if (embeddedFileName) {
+                embeddedFileName.textContent = data.filename;
+            } else {
+                console.error("The embedded file name element is missing from the DOM.");
+            }
         } else {
             console.error('Thumbnail URL is missing or invalid');
         }
