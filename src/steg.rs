@@ -12,12 +12,12 @@
 // Pic coded signature : specific, but arbitray number of bytes.
 // Password enabled : 1 byte, 'Y' or 'N'.
 // If password enabled : 32 byte hash of password.
-// Number of files embedded : 3 digit integer, leading zeros.
+// Number of files embedded : (num_files_chars) digit integer, leading zeros.
 // For each file section the following applies:
 //
-// File name length : 3 digit integer, leading zeros.
+// File name length : (len_filename_chars) digit integer, leading zeros.
 // File name : file name string in file name length bytes.
-// File length in bytes : 10 digit integer, leading zeros.
+// File length in bytes : (file_len_chars) digit integer, leading zeros.
 // File contents : file bytes in file length bytes.
 
 pub mod image_read;
@@ -49,7 +49,7 @@ pub enum SteganographyError {
 impl fmt::Display for SteganographyError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            SteganographyError::IncorrectPassword => write!(f, "Incorrect password provided."),
+            SteganographyError::IncorrectPassword => write!(f, "Incorrect password provided"),
         }
     }
 }
@@ -87,11 +87,13 @@ pub struct Steganography {
     pub bit: u8,
     pub bytes_read: u32,
     pub code_bytes: Vec<u8>,
+    pub overhead_per_file: u16,
     pub embed_capacity: u64,
     pub load_duration: Duration,
     pub extract_duration: Duration,
     pub embed_duration: Duration,
     pub embedded_files: Vec<EmbeddedFile>,
+    pub retry_extract: bool,
 }
 
 // Initialise all struct variables.
@@ -100,7 +102,7 @@ impl Steganography {
     pub fn init() -> Self {
         info!("Initialising Steganography struct.");
 
-        // Lock the global SETTINGS to obtain access to the Settings object
+        // Lock the global SETTINGS to obtain access to the Settings object.
         let settings = SETTINGS.lock().unwrap().clone();
 
         Steganography {
@@ -122,11 +124,13 @@ impl Steganography {
             bit: 0,
             bytes_read: 0,
             code_bytes: Vec::with_capacity(0),
+            overhead_per_file: 0,
             embed_capacity: 0,
             load_duration: Duration::new(0, 0),
             extract_duration: Duration::new(0, 0),
             embed_duration: Duration::new(0, 0),
             embedded_files: Vec::new(),
+            retry_extract: false,
         }
     }
 }
@@ -147,6 +151,7 @@ impl Steganography {
         self.pic_col_planes = 0;
         self.embed_capacity = 0;
         self.embedded_files = Vec::new();
+        self.retry_extract = false;
     }
 }
 
@@ -263,13 +268,24 @@ impl Steganography {
 
             // There is a fixed amount of capacity that must be reserved.
             // Allocation for pic code preamble.
-            // Allocation 1 byte for is password protected
-            // Allocation 32 bytes for password
-            // Allocation 3 bytes for number of files
-
+            // Allocation (pw_protected_chars) byte for is password protected
+            // Allocation (pw_chars) bytes for password
+            // Allocation (num_files_chars) bytes for number of files
             self.embed_capacity = self.embed_capacity - self.settings.prog_code.len() as u64 - 36;
-
+            self.embed_capacity -= self.settings.prog_code.len() as u64;
+            self.embed_capacity -= self.settings.pw_protected_chars as u64;
+            self.embed_capacity -= self.settings.pw_chars as u64;
+            self.embed_capacity -= self.settings.num_files_chars as u64;
             info!("Embedding capacity (bytes): {}", self.embed_capacity);
+
+            // There is also an overhead per file to cover the file name and size etc.
+            // Need to account for this when embedding.
+            // File name length (len_filename_chars) leading zeros. Assume worse case.
+            // File name : file name string in file name length bytes.
+            // File length in bytes : leading zeros.
+            self.overhead_per_file = self.settings.len_filename_chars as u16;
+            self.overhead_per_file += u16::pow(10, self.settings.len_filename_chars as u32);
+            self.overhead_per_file += self.settings.file_len_chars as u16;
         }
 
         // Check if the file is already pic coded.
@@ -352,7 +368,7 @@ impl Steganography {
     pub fn check_for_password(&mut self) {
 
         // Read number of bytes for whether or not there is a password.
-        let bytes_to_read:u32 = 1;
+        let bytes_to_read:u32 = self.settings.pw_protected_chars as u32;
         self.read_data_from_image(bytes_to_read);
         if self.bytes_read != bytes_to_read {
             error!("Expected bytes: {}, bytes read: {}", bytes_to_read, self.bytes_read);
@@ -388,18 +404,36 @@ impl Steganography {
         // Initialise timer for function.
         let extract_start = Instant::now();
 
+        // If retrying extraction then have to reset read position.
+        // Here retries occur if wrong password entered.
+        if self.retry_extract == true {
+            // Reset to start of file
+            self.init_embed_params();
+
+            // Need to point to password location.
+            // Offset by previous file lengths.
+            let pw_offset:u32 = self.settings.prog_code.len() as u32 + self.settings.pw_protected_chars as u32;
+            self.read_data_from_image(pw_offset);
+        }
+
         // If password required then check it.
         if self.pic_has_pw == true {
             // Password required, so check password provided.
             self.check_valid_password(pw);
             if self.user_permit == true {
                 info!("Correct password provided.");
+
+                self.retry_extract = false;
+
             }
             else {
                 // Determine delta time for function, albeit failed.
                 self.extract_duration = extract_start.elapsed();
                 info!("Time for file(s) extraction: {:?}", self.extract_duration);
                 info!("Correct password NOT provided.");
+
+                self.retry_extract = true;
+
                 return Err(SteganographyError::IncorrectPassword);
             }
         }
@@ -421,7 +455,7 @@ impl Steganography {
         // Before checking the password we have to get the
         // hashed password stored in the image.
         // The password is a SHA-256 so always 32 bytes long.
-        let bytes_to_read:u32 = 32;
+        let bytes_to_read:u32 = self.settings.pw_chars as u32;
         self.read_data_from_image(bytes_to_read);
         if self.bytes_read != bytes_to_read {
             error!("Expected bytes: {}, bytes read: {}", bytes_to_read, self.bytes_read);
@@ -449,7 +483,7 @@ impl Steganography {
     pub fn get_embedded_data(&mut self) {
 
         // First get the number of files embedded.
-        let bytes_to_read:u32 = 3;
+        let bytes_to_read:u32 = self.settings.len_filename_chars as u32;
         self.read_data_from_image(bytes_to_read);
         if self.bytes_read != bytes_to_read {
             error!("Expected bytes: {}, bytes read: {}", bytes_to_read, self.bytes_read);
@@ -466,7 +500,7 @@ impl Steganography {
                     for _idx in 1..= num_files {
 
                         // First get the length of the file name.
-                        let bytes_to_read:u32 = 3;
+                        let bytes_to_read:u32 = self.settings.num_files_chars as u32;
                         self.read_data_from_image(bytes_to_read);
                         if self.bytes_read != bytes_to_read {
                             error!("Expected bytes: {}, bytes read: {}", bytes_to_read, self.bytes_read);
@@ -494,7 +528,7 @@ impl Steganography {
                                                 info!("Embedded file name: {}", file_name);
 
                                                 // Now we need to get the length of the file.
-                                                let bytes_to_read:u32 = 10;
+                                                let bytes_to_read:u32 = self.settings.file_len_chars as u32;
                                                 self.read_data_from_image(bytes_to_read);
                                                 if self.bytes_read != bytes_to_read {
                                                     error!("Expected bytes: {}, bytes read: {}", bytes_to_read, self.bytes_read);
@@ -817,7 +851,7 @@ impl Steganography {
         info!("Embedding number of files: {}", num_files);
 
         // Get the number of files as a string with leading 0s.
-        let _num_files:String = format!("{:0>3}", num_files);
+        let _num_files:String = format!("{:0>width$}", num_files, width=self.settings.num_files_chars as usize);
         let num_file_bytes = _num_files.as_bytes();
 
         // Embed into image.
@@ -845,13 +879,13 @@ impl Steganography {
         // Determine filename length.
         // And format to 3 digits, with leading 0s.
         let _file_name_len = _file_name.len() as u8;
-        let _file_name_len_str:String = format!("{:0>3}", _file_name_len);
+        let _file_name_len_str:String = format!("{:0>width$}", _file_name_len, width=self.settings.len_filename_chars as usize);
         let _file_name_len_bytes = _file_name_len_str.as_bytes();
         // Determine file length in bytes.
         // Format to 10 digits, with leading 0s.
         let _metadata = fs::metadata(file_path)?;
         let _file_size = _metadata.len();
-        let _file_size_str:String = format!("{:0>10}", _file_size);
+        let _file_size_str:String = format!("{:0>width$}", _file_size, width=self.settings.file_len_chars as usize);
         let _file_size_bytes = _file_size_str.as_bytes();
 
         // Concatenate file details for embedding.

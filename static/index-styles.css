@@ -1,3 +1,5 @@
+/* Main and default document styles.button-group */
+
 body {
     font-family: Arial, sans-serif;
     background-color: #c4cad8;
@@ -24,11 +26,21 @@ h1 {
 }
 
 p {
-    font-size: 1em;
+    font-size: 1.0em;
     line-height: 100%;
     margin-top: 0.25em ;
     margin-bottom: 1.0em ;
-  }
+}
+
+li {
+    font-size: 1.0em;
+    color: black;
+	text-align:center;
+    font-style: italic;
+    list-style-type: none;
+}
+
+/* General button styles. */
 
 .button-group {
     display: flex;
@@ -41,18 +53,19 @@ p {
     margin: 0;
 }
 
+/* Image upload button and text. */
+
 .custom-upload {
     margin: 0 auto;
     display: inline-block;
     padding: 10px 20px;
-    cursor: pointer;
     background-color: #007bff;
     color: white;
     border-radius: 4px;
     border: 1px solid #007bff;
     text-align: center;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 1.0em;
 }
 
 .custom-upload:hover {
@@ -60,10 +73,12 @@ p {
     border-color: #0056b3;
 }
 
-#fileLabel {
-    margin-left: 10px;
-    font-size: 1.0em;
-    font-style: italic;
+/* Imaage container and image thumbnails. */
+
+.thumbnail-container {
+    position: relative;
+    display: inline-block;
+    text-align: center;
 }
 
 .thumbnail {
@@ -72,6 +87,38 @@ p {
     max-width: 150px;
     max-height: 150px;
 }
+
+#fileLabel {
+    font-size: 1.0em;
+    font-style: italic;
+    font-weight: normal;
+    color: black;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#embeddedImageFileName {
+    font-size: 1.0em;
+    font-style: italic;
+    font-weight: normal;
+    color: black;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.thumbnail:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+#fileLabel {
+    margin-left: 10px;
+    font-size: 1.0em;
+    font-style: italic;
+}
+
+/* Result test box styles.button-group */
 
 .results-text {
     font-size: 1.2em;
@@ -89,11 +136,13 @@ p {
     max-width: 100%;
 }
 
+/* Result text box styles with status border.*/
+
 .results-text.coded {
     font-size: 1.0em;
     font-style: italic;
     text-align: center;
-    border: 4px solid rgb(0, 255, 0);
+    border: 4px solid green;
     padding: 5px;
     display: inline-block;
     margin: 10px auto;
@@ -103,11 +152,53 @@ p {
     font-size: 1.0em;
     font-style: italic;
     text-align: center;
-    border: 2px solid rgb(99, 96, 96);
+    border: 4px solid grey;
     padding: 5px;
     display: inline-block;
     margin: 10px auto;
 }
+
+.results-text.error {
+    font-size: 1.0em;
+    font-style: italic;
+    text-align: center;
+    border: 4px solid red;
+    padding: 5px;
+    display: inline-block;
+    margin: 10px auto;
+}
+
+.results-text.low {
+    font-size: 1.0em;
+    font-style: italic;
+    text-align: center;
+    border: 4px solid green;
+    padding: 5px;
+    display: inline-block;
+    margin: 10px auto;
+}
+
+.results-text.medium {
+    font-size: 1.0em;
+    font-style: italic;
+    text-align: center;
+    border: 4px solid orange;
+    padding: 5px;
+    display: inline-block;
+    margin: 10px auto;
+}
+
+.results-text.high {
+    font-size: 1.0em;
+    font-style: italic;
+    text-align: center;
+    border: 4px solid red;
+    padding: 5px;
+    display: inline-block;
+    margin: 10px auto;
+}
+
+/* Extraction results and thumbnail styles.button-group */
 
 .processing-results {
     text-align: center;
@@ -154,10 +245,12 @@ p {
 }
 
 .thumbnail-filename {
-    font-size: 10px;
+    font-size: 0.8em;
     font-style: italic;
     color: black;
 }
+
+/* Effect stles for result thumbnails. */
 
 .modal {
     display: none;
@@ -183,7 +276,7 @@ p {
 .close {
     color: #aaa;
     float: right;
-    font-size: 28px;
+    font-size: 1.0px;
     font-weight: bold;
 }
 
@@ -194,13 +287,15 @@ p {
     cursor: pointer;
 }
 
+/* Wait spinner styling. */
+
 #overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.7);
     display: none;
     justify-content: center;
     align-items: center;
@@ -225,11 +320,28 @@ p {
     display: flex;
 }
 
-/* Basic video thumbnail styling */
-.video-thumbnail {
-    display: inline-block;
+/* Styles for password popups. */
+
+.password-container {
     position: relative;
-    max-width: 200px;
-    height: auto;
-    object-fit: contain;
+    display: inline-block;
+}
+
+#embedPasswordInput,
+#extractPasswordInput {
+    font-size: 1.0em;
+    height: auto; 
+    padding: 10px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.toggle-password i {
+    font-size: 1.2em;
 }
