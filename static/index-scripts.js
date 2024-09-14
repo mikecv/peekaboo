@@ -133,7 +133,13 @@ document.getElementById('uploadButton').addEventListener('click', function() {
     const embedButton = document.getElementById('embedButton');
     const formData = new FormData();
 
+    // Initialise extract files password entry attempts.
+    passwordAttempts = 0;
+
     formData.append('file', file);
+
+    // Show the progress spinner.
+    showSpinner();
 
     console.log("Posting to /upload endpoint.");
     fetch('/upload', {
@@ -144,9 +150,13 @@ document.getElementById('uploadButton').addEventListener('click', function() {
         if (!response.ok) {
             throw new Error('Failed to upload file.');
         }
+
         console.log("Upload of browsed file successful.");
+        // Hide the progress spinner.
+        hideSpinner();
+
         return response.json();
-    })
+        })
     .then(data => {
         console.log("Hiding upload button as already uploaded.");
         uploadButton.style.display = 'none';
@@ -485,6 +495,12 @@ document.getElementById('extractButton').addEventListener('click', function() {
     }
 });
 
+// Function to manually trigger the event listener for the Extract button.
+// This is used to retry extraction if passwork entered wrong.
+function extract_listener() {
+    document.getElementById('extractButton').click();
+}
+
 // Event listener for extract password submit.
 document.getElementById('extractPasswordSubmitButton').addEventListener('click', function() {
     const password = document.getElementById('extractPasswordInput').value;
@@ -502,6 +518,9 @@ document.getElementById('extractPasswordInput').addEventListener('keypress', fun
         document.getElementById('extractPasswordSubmitButton').click();
     }
 });
+
+// Global variable to hold password attempts.
+let passwordAttempts= 0;
 
 // Worker function to perform extraction.
 function performExtraction(password = '') {
@@ -529,181 +548,207 @@ function performExtraction(password = '') {
         console.log("Received data from /extract endpoint.");
         const resultsElement = document.getElementById('processingResults');
         resultsElement.textContent = `File(s) extracted: ${data.extracted}, Duration: ${data.time}`;
-    
-        // Show the thumbnails container
-        const extractedResultsContainer = document.getElementById('extractedResultsContainer');
-        extractedResultsContainer.style.display = 'block';
-    
-        const extractedFileResultsDiv = document.getElementById('extractedFileResults');
-        extractedFileResultsDiv.innerHTML = '';
-    
-        // Preserve the original image thumbnail by cloning it.
-        const originalImageDiv = document.getElementById('originalThumbnail');
-        if (originalImageDiv) {
-            const originalClone = originalImageDiv.cloneNode(true);
-            extractedFileResultsDiv.appendChild(originalClone);
-        }
-               
-        const files = JSON.parse(data.files);
-        files.forEach(file => {
-            const fileDiv = document.createElement('div');
-            fileDiv.classList.add('file-thumbnail');
 
-            // File type of extracted file.
-            console.log('Extracted file: ' + file.name);
-            console.log('Extracted file of type: ' + file.type);
-
-            if (file.type.startsWith('image/')) {
-                //
-                // IMAGE mime types.
-                // Show image as actual image thumbnail.
-                //
-                const a = document.createElement('a');
-                a.href = file.path;
-                a.target = '_blank';
-                const img = document.createElement('img');
-                img.src = file.path;
-                img.alt = file.name;
-                img.classList.add('thumbnail');
-                img.classList.add('border-on');
-                a.appendChild(img);
-                fileDiv.appendChild(a);
-
-                // Create and append a paragraph element with the file name.
-                const fileName = document.createElement('p');
-                fileName.textContent = file.name;
-                fileName.classList.add('thumbnail-filename');
-                fileDiv.appendChild(fileName);
-            }
-            else if (file.type.startsWith('video/')) {
-                //
-                // VIDEO mime types.
-                // Show as video thumbnail.
-                //
-                const a = document.createElement('a');
-                a.href = file.path;
-                a.download = file.name;
-                const img = document.createElement('img');
-                img.src = '/static/icon-video.png';
-                img.alt = 'Video File Thumbnail';
-                img.classList.add('thumbnail');
-                a.appendChild(img);
-                fileDiv.appendChild(a);
-
-                const fileName = document.createElement('p');
-                fileName.textContent = file.name;
-                fileName.classList.add('thumbnail-filename');
-                fileDiv.appendChild(fileName);
-            }
-            else if (file.type.startsWith('text/')) {
-                //
-                // TEXT mime types.
-                // Show image as text thumbnail.
-                //
-                const a = document.createElement('a');
-                a.href = file.path;
-                a.download = file.name;
-                const img = document.createElement('img');
-                img.src = '/static/icon-text.png';
-                img.alt = 'Text File Thumbnail';
-                img.classList.add('thumbnail');
-                a.appendChild(img);
-                fileDiv.appendChild(a);
-
-                const fileName = document.createElement('p');
-                fileName.textContent = file.name;
-                fileName.classList.add('thumbnail-filename');
-                fileDiv.appendChild(fileName);
-            }
-            else if (file.type.startsWith('audio/')) {
-                //
-                // AUDIO mime types.
-                // Show as sound file thumbnail.
-                //
-                const a = document.createElement('a');
-                a.href = file.path;
-                a.download = file.name;
-                const img = document.createElement('img');
-                img.src = '/static/icon-audio.png';
-                img.alt = 'Audio File Thumbnail';
-                img.classList.add('thumbnail');
-                a.appendChild(img);
-                fileDiv.appendChild(a);
-
-                const fileName = document.createElement('p');
-                fileName.textContent = file.name;
-                fileName.classList.add('thumbnail-filename');
-                fileDiv.appendChild(fileName);
-            }
-            else if (file.type.startsWith('application/pdf')) {
-                //
-                // PDF mime type.
-                // Show as a PDF thumbnail.
-                //
-                const a = document.createElement('a');
-                a.href = file.path;
-                a.download = file.name;
-                const img = document.createElement('img');
-                img.src = '/static/icon-pdf.png';
-                img.alt = 'PDF File Thumbnail';
-                img.classList.add('thumbnail');
-                a.appendChild(img);
-                fileDiv.appendChild(a);
-
-                const fileName = document.createElement('p');
-                fileName.textContent = file.name;
-                fileName.classList.add('thumbnail-filename');
-                fileDiv.appendChild(fileName);
-            }
-            else if (file.type.startsWith('application/x-tar')) {
-                //
-                // Archive tar.gz mime type.
-                // Show tar.gz archive as archive thumbnail.
-                //
-                const a = document.createElement('a');
-                a.href = file.path;
-                a.download = file.name;
-                const img = document.createElement('img');
-                img.src = '/static/icon-archive.png';
-                img.alt = 'File Archive Thumbnail';
-                img.classList.add('thumbnail');
-                a.appendChild(img);
-                fileDiv.appendChild(a);
-
-                const fileName = document.createElement('p');
-                fileName.textContent = file.name;
-                fileName.classList.add('thumbnail-filename');
-                fileDiv.appendChild(fileName);
-            }
-            else {
-                //
-                // Not a specificly supported mime type.
-                // Show as a generic thumbnail.
-                //
-                const a = document.createElement('a');
-                a.href = file.path;
-                a.target = '_blank';
-                const img = document.createElement('img');
-                img.src = '/static/icon-generic.png';
-                img.alt = 'Generic File Thumbnail';
-                img.classList.add('thumbnail');
-                a.appendChild(img);
-                fileDiv.appendChild(a);
-
-                const fileName = document.createElement('p');
-                fileName.textContent = file.name;
-                fileName.classList.add('thumbnail-filename');
-                fileDiv.appendChild(fileName);
-            }
-            // Append the fileDiv to the thumbnails container
-            extractedFileResultsDiv.appendChild(fileDiv);
-        });
-
-        if (data.extracted === "True") {
-            resultsElement.className = 'results-text coded';
+        // Check for errors in extraction.
+        // Check for wrong password entered.
+        if (data.extracted === "Incorrect password provided") {
+            resultsElement.textContent = `Error: ${data.extracted}, Duration: ${data.time}`;
+            resultsElement.className = 'results-text error';
             extractButton.style.display = 'none';
+
+            // Increment password attempts.
+            passwordAttempts += 1;
+
+            // Present an alert regarding the wrong password.
+            // Only get 3 attempts.
+            if (passwordAttempts < 4){
+                alert('Wrong password entered, attempt (' + passwordAttempts + ' of 3)');
+                console.log("Wrong password entered attenpting to extract files.");
+            }
+            // Trigger the extract listener manually.
+            // Not part of 'if' above as still want user to acknowledge last attempt.
+            if (passwordAttempts < 3){
+                extract_listener();
+            }
         } else {
-            resultsElement.className = 'results-text not-coded';
+            // Reinitialise password attempt counter.
+            passwordAttempts = 0;
+
+            // Show the thumbnails container
+            const extractedResultsContainer = document.getElementById('extractedResultsContainer');
+            extractedResultsContainer.style.display = 'block';
+        
+            const extractedFileResultsDiv = document.getElementById('extractedFileResults');
+            extractedFileResultsDiv.innerHTML = '';
+        
+            // Preserve the original image thumbnail by cloning it.
+            const originalImageDiv = document.getElementById('originalThumbnail');
+            if (originalImageDiv) {
+                const originalClone = originalImageDiv.cloneNode(true);
+                extractedFileResultsDiv.appendChild(originalClone);
+            }
+                
+            const files = JSON.parse(data.files);
+            files.forEach(file => {
+                const fileDiv = document.createElement('div');
+                fileDiv.classList.add('file-thumbnail');
+
+                // File type of extracted file.
+                console.log('Extracted file: ' + file.name);
+                console.log('Extracted file of type: ' + file.type);
+
+                if (file.type.startsWith('image/')) {
+                    //
+                    // IMAGE mime types.
+                    // Show image as actual image thumbnail.
+                    //
+                    const a = document.createElement('a');
+                    a.href = file.path;
+                    a.target = '_blank';
+                    const img = document.createElement('img');
+                    img.src = file.path;
+                    img.alt = file.name;
+                    img.classList.add('thumbnail');
+                    img.classList.add('border-on');
+                    a.appendChild(img);
+                    fileDiv.appendChild(a);
+
+                    // Create and append a paragraph element with the file name.
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    fileName.classList.add('thumbnail-filename');
+                    fileDiv.appendChild(fileName);
+                }
+                else if (file.type.startsWith('video/')) {
+                    //
+                    // VIDEO mime types.
+                    // Show as video thumbnail.
+                    //
+                    const a = document.createElement('a');
+                    a.href = file.path;
+                    a.download = file.name;
+                    const img = document.createElement('img');
+                    img.src = '/static/icon-video.png';
+                    img.alt = 'Video File Thumbnail';
+                    img.classList.add('thumbnail');
+                    a.appendChild(img);
+                    fileDiv.appendChild(a);
+
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    fileName.classList.add('thumbnail-filename');
+                    fileDiv.appendChild(fileName);
+                }
+                else if (file.type.startsWith('text/')) {
+                    //
+                    // TEXT mime types.
+                    // Show image as text thumbnail.
+                    //
+                    const a = document.createElement('a');
+                    a.href = file.path;
+                    a.download = file.name;
+                    const img = document.createElement('img');
+                    img.src = '/static/icon-text.png';
+                    img.alt = 'Text File Thumbnail';
+                    img.classList.add('thumbnail');
+                    a.appendChild(img);
+                    fileDiv.appendChild(a);
+
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    fileName.classList.add('thumbnail-filename');
+                    fileDiv.appendChild(fileName);
+                }
+                else if (file.type.startsWith('audio/')) {
+                    //
+                    // AUDIO mime types.
+                    // Show as sound file thumbnail.
+                    //
+                    const a = document.createElement('a');
+                    a.href = file.path;
+                    a.download = file.name;
+                    const img = document.createElement('img');
+                    img.src = '/static/icon-audio.png';
+                    img.alt = 'Audio File Thumbnail';
+                    img.classList.add('thumbnail');
+                    a.appendChild(img);
+                    fileDiv.appendChild(a);
+
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    fileName.classList.add('thumbnail-filename');
+                    fileDiv.appendChild(fileName);
+                }
+                else if (file.type.startsWith('application/pdf')) {
+                    //
+                    // PDF mime type.
+                    // Show as a PDF thumbnail.
+                    //
+                    const a = document.createElement('a');
+                    a.href = file.path;
+                    a.download = file.name;
+                    const img = document.createElement('img');
+                    img.src = '/static/icon-pdf.png';
+                    img.alt = 'PDF File Thumbnail';
+                    img.classList.add('thumbnail');
+                    a.appendChild(img);
+                    fileDiv.appendChild(a);
+
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    fileName.classList.add('thumbnail-filename');
+                    fileDiv.appendChild(fileName);
+                }
+                else if (file.type.startsWith('application/x-tar')) {
+                    //
+                    // Archive tar.gz mime type.
+                    // Show tar.gz archive as archive thumbnail.
+                    //
+                    const a = document.createElement('a');
+                    a.href = file.path;
+                    a.download = file.name;
+                    const img = document.createElement('img');
+                    img.src = '/static/icon-archive.png';
+                    img.alt = 'File Archive Thumbnail';
+                    img.classList.add('thumbnail');
+                    a.appendChild(img);
+                    fileDiv.appendChild(a);
+
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    fileName.classList.add('thumbnail-filename');
+                    fileDiv.appendChild(fileName);
+                }
+                else {
+                    //
+                    // Not a specificly supported mime type.
+                    // Show as a generic thumbnail.
+                    //
+                    const a = document.createElement('a');
+                    a.href = file.path;
+                    a.target = '_blank';
+                    const img = document.createElement('img');
+                    img.src = '/static/icon-generic.png';
+                    img.alt = 'Generic File Thumbnail';
+                    img.classList.add('thumbnail');
+                    a.appendChild(img);
+                    fileDiv.appendChild(a);
+
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    fileName.classList.add('thumbnail-filename');
+                    fileDiv.appendChild(fileName);
+                }
+                // Append the fileDiv to the thumbnails container
+                extractedFileResultsDiv.appendChild(fileDiv);
+            });
+
+            if (data.extracted === "True") {
+                resultsElement.className = 'results-text coded';
+                extractButton.style.display = 'none';
+            } else {
+                resultsElement.className = 'results-text not-coded';
+            }
         }
     })
     .catch(error => {

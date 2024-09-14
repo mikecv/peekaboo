@@ -156,7 +156,7 @@ async fn extract(
         // Extraction failed with error result.
         Err(_e) => {
             // Respond with failed extraction status to display on UI.
-            response_data.insert("extracted", "False".to_string());
+            response_data.insert("extracted", _e.to_string());
             let test_time_ms:f64 = steg.extract_duration.as_millis() as f64 / 1000.0 as f64;
             let duration_str = format!("{:.3} sec", test_time_ms);
             response_data.insert("time", duration_str);

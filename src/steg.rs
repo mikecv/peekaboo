@@ -49,7 +49,7 @@ pub enum SteganographyError {
 impl fmt::Display for SteganographyError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            SteganographyError::IncorrectPassword => write!(f, "Incorrect password provided."),
+            SteganographyError::IncorrectPassword => write!(f, "Incorrect password provided"),
         }
     }
 }
@@ -93,6 +93,7 @@ pub struct Steganography {
     pub extract_duration: Duration,
     pub embed_duration: Duration,
     pub embedded_files: Vec<EmbeddedFile>,
+    pub retry_extract: bool,
 }
 
 // Initialise all struct variables.
@@ -101,7 +102,7 @@ impl Steganography {
     pub fn init() -> Self {
         info!("Initialising Steganography struct.");
 
-        // Lock the global SETTINGS to obtain access to the Settings object
+        // Lock the global SETTINGS to obtain access to the Settings object.
         let settings = SETTINGS.lock().unwrap().clone();
 
         Steganography {
@@ -129,6 +130,7 @@ impl Steganography {
             extract_duration: Duration::new(0, 0),
             embed_duration: Duration::new(0, 0),
             embedded_files: Vec::new(),
+            retry_extract: false,
         }
     }
 }
@@ -149,6 +151,7 @@ impl Steganography {
         self.pic_col_planes = 0;
         self.embed_capacity = 0;
         self.embedded_files = Vec::new();
+        self.retry_extract = false;
     }
 }
 
@@ -270,9 +273,9 @@ impl Steganography {
             // Allocation (num_files_chars) bytes for number of files
             self.embed_capacity = self.embed_capacity - self.settings.prog_code.len() as u64 - 36;
             self.embed_capacity -= self.settings.prog_code.len() as u64;
-            self.embed_capacity -= self.settings.num_files_chars as u64;
             self.embed_capacity -= self.settings.pw_protected_chars as u64;
             self.embed_capacity -= self.settings.pw_chars as u64;
+            self.embed_capacity -= self.settings.num_files_chars as u64;
             info!("Embedding capacity (bytes): {}", self.embed_capacity);
 
             // There is also an overhead per file to cover the file name and size etc.
@@ -401,18 +404,36 @@ impl Steganography {
         // Initialise timer for function.
         let extract_start = Instant::now();
 
+        // If retrying extraction then have to reset read position.
+        // Here retries occur if wrong password entered.
+        if self.retry_extract == true {
+            // Reset to start of file
+            self.init_embed_params();
+
+            // Need to point to password location.
+            // Offset by previous file lengths.
+            let pw_offset:u32 = self.settings.prog_code.len() as u32 + self.settings.pw_protected_chars as u32;
+            self.read_data_from_image(pw_offset);
+        }
+
         // If password required then check it.
         if self.pic_has_pw == true {
             // Password required, so check password provided.
             self.check_valid_password(pw);
             if self.user_permit == true {
                 info!("Correct password provided.");
+
+                self.retry_extract = false;
+
             }
             else {
                 // Determine delta time for function, albeit failed.
                 self.extract_duration = extract_start.elapsed();
                 info!("Time for file(s) extraction: {:?}", self.extract_duration);
                 info!("Correct password NOT provided.");
+
+                self.retry_extract = true;
+
                 return Err(SteganographyError::IncorrectPassword);
             }
         }
