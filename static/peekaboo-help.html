@@ -22,6 +22,7 @@
          <a href="#Unencoded Images"> - Unencoded Images</a>
          <a href="#Encoded Images"> - Encoded Images</a>
          <a href="#Embedding">Embedding</a>
+         <a href="#Embedding Example"> - An Example</a>
          <a href="#Extracting">Extracting</a>
          <a href="#About">About</a>
       </div>
@@ -168,6 +169,62 @@
          to the host image will be noticeable.
          </p>
 
+         <a id="Embedding Example"></a>
+         <h3>Embeddding Example</h3>
+         <p>We start by uploading our base PNG image, and as per the previous section the uploading
+         process results in displaying the embedding capacity of the image as illustrated below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/uploadedImage.png" alt="Uploaded image to encode.">
+         </p>
+         <p>In this example the uploaded image is not already encoded, and has an encoding
+         capacity of 4,493,589 Bytes. As we'll show later, this is the absolute maximum that
+         can be encoded in this base image, and in reality, using more than half this capacity
+         will be visibly noticeable in the resultant image.
+         </p>
+         <p> The first step in the process is to press the <i><b>"Embed"</b></i> button.
+         Doing so will present a button to browse for files to embed as illustrated in the
+         figure below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embedbutton.png" alt="Embed button pressed.">
+         </p>
+         <p> Pressing the <i><b>"Browse for Files to Embed"</b></i> button will open the default
+         browser and allow the selection of 1 or more files as illustrated in the figure below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embeddingGreenFiles.png" alt="Embedding < 35% capacity.">
+         </p>
+         <p> There are a few interesting pieces of information in the previous image, namely:
+            <ul>
+               <li>The files selected and their file sizes are listed.</li>
+               <li>The remaining embedding capacity, in this case 83.2%.</li>
+               <li>The green border indicates more than 65% remaining capacity.</li>
+            </ul>
+         </p>
+         <p> At this point the user can repeat the process and select additional files to embed,
+         or they can select the <i><b>"Sumbit"</b></i> button to embed all the files currently listed.
+         Selecting the <i><b>"Submit"</b></i> button will present the user with a dialog where
+         they can specify a password to protect the embedding as illustrated in the figure below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embedPassword.png" alt="Password protection dialog.">
+         </p>
+         <p>Note that the user can opt for no password protection by submitting a blank password.
+         On submitting the password dialog the embedding process will be run. As this may take
+         some time, depending on how much data is to be embedded, a 'wait spinner' will be displayed.
+         </p>>
+         <p>On completion of the embedding process the result will be presented, including a thumbnail
+         of the image embedded with the previously selected files as illustrated in the figure below.
+         </p>>
+         <p class="images">
+            <img src="/static/help-pics/embeddingDone.png" alt="PEmbedding process complete.">
+         </p>
+         <p> If all went well, the result will be a success, and the image embedded with the files
+         will not be <i>>noticably</i> different from the original uploaded image. Note that selecting
+         the resultant image will display the image in a new browser page for more closer inspection.
+         </p>
+         
          <a id="Extracting"></a>
          <h2>Extracting</h2>
 
