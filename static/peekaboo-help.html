@@ -23,6 +23,7 @@
          <a href="#Encoded Images"> - Encoded Images</a>
          <a href="#Embedding">Embedding</a>
          <a href="#Embedding Example"> - An Example</a>
+         <a href="#Embedding Limits"> - Capacity vs Quality</a>
          <a href="#Extracting">Extracting</a>
          <a href="#About">About</a>
       </div>
@@ -213,18 +214,69 @@
          <p>Note that the user can opt for no password protection by submitting a blank password.
          On submitting the password dialog the embedding process will be run. As this may take
          some time, depending on how much data is to be embedded, a 'wait spinner' will be displayed.
-         </p>>
+         </p>
          <p>On completion of the embedding process the result will be presented, including a thumbnail
          of the image embedded with the previously selected files as illustrated in the figure below.
-         </p>>
+         </p>
          <p class="images">
-            <img src="/static/help-pics/embeddingDone.png" alt="PEmbedding process complete.">
+            <img src="/static/help-pics/embeddingDone.png" alt="Embedding process complete.">
          </p>
          <p> If all went well, the result will be a success, and the image embedded with the files
          will not be <i>>noticably</i> different from the original uploaded image. Note that selecting
          the resultant image will display the image in a new browser page for more closer inspection.
          </p>
-         
+
+         <a id="Embedding Limits"></a>
+         <h3>Capacity vs Quality</h3>
+         <p> In the example in the previous section the embedding capacity used was only 16.8%
+          (remaining capacity of 83.2%), and was in the green, or safe zone, where the green zone
+         extendes from 100% down to 65% remaining capacity. As previously noted this is considered
+         the safe zone, i.e. the final embedded image is not noticeab;y different fron the original image.
+         </p>
+         <p>If we try and embed more data into the image we'll enter the orange zone, where remaining Capacity
+         is between 65% and 50% remaining. In the example illustrated below we have embedded more data
+         into the image.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embeddingAmberFiles.png" alt="Embedding in the orange zone.">
+         </p>
+         <p>In this example we are down at a remaining capacity of 53%, and are now at the bottom end of
+         the orange medium zone. That is, we expect to see some evidence of corruption of the original image.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/MT-blended-53pc.png" alt="Remaining capacity 53%.">
+         </p>
+         <p> The image shows a split view of before and after embedding, where the left half of the
+         image is the original, and the right half is the resultant image after embedding. If you look
+         at the right half of the image you can see areas where the colour is washed out. That said,
+         distortion is more visible where areas of the image are the same colour, e.g. in the background
+         or on parts of Margaret's cheeck. In areas of finer detail like the hair and facial features
+         the distortion is not as obvious.
+         </p>
+         <p> We can see this even more in the following example where the embedding has been pushed to
+         38.8% capacity remaining. Notice that now the border on the results text is red, indicating
+         that we are in the zone where we expect more distortion of the image following embedding.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embeddingRedFiles.png" alt="Embedding in the red zone.">
+         </p>
+         <p>If we look at a split view once again we see that the right half of the image has even
+         more spots where the image colour is clearly modified, and these modifications are more
+         pronounced.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/MT-blended-39pc.png" alt="Remaining capacity 39%.">
+         </p>
+
+         <p>The embedding algorithm used targets the least significant bits of the image pixel data first,
+         and moves to more and more significant bits as the embedding capacity is used. As you reach the
+         capacity limits the oboration of the colour detail of the image is more pronounced.
+         </p>
+         <p>The recommendation then is to stay within the green and orange zones of embedding
+         capacity. The impact of embedding data will be less in some emages and with different data
+         being embedded so there is no hard and fast limit.
+         </p>
+   
          <a id="Extracting"></a>
          <h2>Extracting</h2>
 
