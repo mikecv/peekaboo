@@ -613,6 +613,10 @@ function performExtraction(password = '') {
                     a.appendChild(img);
                     fileDiv.appendChild(a);
 
+                    // Apply the border to the image using the toggleBorder function.
+                    // <MDC> This is just an example of setting the border colour for a thumbnail.
+                    toggleBorder(img, true, 'orange');
+
                     // Create and append a paragraph element with the file name.
                     const fileName = document.createElement('p');
                     fileName.textContent = file.name;
@@ -764,14 +768,15 @@ document.querySelector('.close').addEventListener('click', function() {
     modal.style.display = 'none';
 });
 
-// Function to toggle border on an image.
-function toggleBorder(imgElement, borderOn) {
+// Function to toggle border on an image thumbnail.
+function toggleBorder(imgElement, borderOn, borderColor) {
     if (borderOn) {
-        console.log('Setting border ON for image.');
-        imgElement.classList.add('border-on');
+        console.log('Setting border ON for image thumbnail.');
+        imgElement.style.border = `2px solid ${borderColor}`;
+        imgElement.style.padding = '5px';
     } else {
-        console.log('Setting border OFF for image.');
-        imgElement.classList.remove('border-on');
+        console.log('Setting border OFF for image thumbnail.');
+        imgElement.style.border = 'none';
     }
 }
 

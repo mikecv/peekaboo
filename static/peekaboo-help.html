@@ -22,6 +22,8 @@
          <a href="#Unencoded Images"> - Unencoded Images</a>
          <a href="#Encoded Images"> - Encoded Images</a>
          <a href="#Embedding">Embedding</a>
+         <a href="#Embedding Example"> - An Example</a>
+         <a href="#Embedding Limits"> - Capacity vs Quality</a>
          <a href="#Extracting">Extracting</a>
          <a href="#About">About</a>
       </div>
@@ -168,6 +170,113 @@
          to the host image will be noticeable.
          </p>
 
+         <a id="Embedding Example"></a>
+         <h3>Embeddding Example</h3>
+         <p>We start by uploading our base PNG image, and as per the previous section the uploading
+         process results in displaying the embedding capacity of the image as illustrated below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/uploadedImage.png" alt="Uploaded image to encode.">
+         </p>
+         <p>In this example the uploaded image is not already encoded, and has an encoding
+         capacity of 4,493,589 Bytes. As we'll show later, this is the absolute maximum that
+         can be encoded in this base image, and in reality, using more than half this capacity
+         will be visibly noticeable in the resultant image.
+         </p>
+         <p> The first step in the process is to press the <i><b>"Embed"</b></i> button.
+         Doing so will present a button to browse for files to embed as illustrated in the
+         figure below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embedbutton.png" alt="Embed button pressed.">
+         </p>
+         <p> Pressing the <i><b>"Browse for Files to Embed"</b></i> button will open the default
+         browser and allow the selection of 1 or more files as illustrated in the figure below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embeddingGreenFiles.png" alt="Embedding < 35% capacity.">
+         </p>
+         <p> There are a few interesting pieces of information in the previous image, namely:
+            <ul>
+               <li>The files selected and their file sizes are listed.</li>
+               <li>The remaining embedding capacity, in this case 83.2%.</li>
+               <li>The green border indicates more than 65% remaining capacity.</li>
+            </ul>
+         </p>
+         <p> At this point the user can repeat the process and select additional files to embed,
+         or they can select the <i><b>"Sumbit"</b></i> button to embed all the files currently listed.
+         Selecting the <i><b>"Submit"</b></i> button will present the user with a dialog where
+         they can specify a password to protect the embedding as illustrated in the figure below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embedPassword.png" alt="Password protection dialog.">
+         </p>
+         <p>Note that the user can opt for no password protection by submitting a blank password.
+         On submitting the password dialog the embedding process will be run. As this may take
+         some time, depending on how much data is to be embedded, a 'wait spinner' will be displayed.
+         </p>
+         <p>On completion of the embedding process the result will be presented, including a thumbnail
+         of the image embedded with the previously selected files as illustrated in the figure below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embeddingDone.png" alt="Embedding process complete.">
+         </p>
+         <p> If all went well, the result will be a success, and the image embedded with the files
+         will not be <i>>noticably</i> different from the original uploaded image. Note that selecting
+         the resultant image will display the image in a new browser page for more closer inspection.
+         </p>
+
+         <a id="Embedding Limits"></a>
+         <h3>Capacity vs Quality</h3>
+         <p> In the example in the previous section the embedding capacity used was only 16.8%
+          (remaining capacity of 83.2%), and was in the green, or safe zone, where the green zone
+         extendes from 100% down to 65% remaining capacity. As previously noted this is considered
+         the safe zone, i.e. the final embedded image is not noticeab;y different fron the original image.
+         </p>
+         <p>If we try and embed more data into the image we'll enter the orange zone, where remaining Capacity
+         is between 65% and 50% remaining. In the example illustrated below we have embedded more data
+         into the image.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embeddingAmberFiles.png" alt="Embedding in the orange zone.">
+         </p>
+         <p>In this example we are down at a remaining capacity of 53%, and are now at the bottom end of
+         the orange medium zone. That is, we expect to see some evidence of corruption of the original image.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/MT-blended-53pc.png" alt="Remaining capacity 53%.">
+         </p>
+         <p> The image shows a split view of before and after embedding, where the left half of the
+         image is the original, and the right half is the resultant image after embedding. If you look
+         at the right half of the image you can see areas where the colour is washed out. That said,
+         distortion is more visible where areas of the image are the same colour, e.g. in the background
+         or on parts of Margaret's cheeck. In areas of finer detail like the hair and facial features
+         the distortion is not as obvious.
+         </p>
+         <p> We can see this even more in the following example where the embedding has been pushed to
+         38.8% capacity remaining. Notice that now the border on the results text is red, indicating
+         that we are in the zone where we expect more distortion of the image following embedding.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embeddingRedFiles.png" alt="Embedding in the red zone.">
+         </p>
+         <p>If we look at a split view once again we see that the right half of the image has even
+         more spots where the image colour is clearly modified, and these modifications are more
+         pronounced.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/MT-blended-39pc.png" alt="Remaining capacity 39%.">
+         </p>
+
+         <p>The embedding algorithm used targets the least significant bits of the image pixel data first,
+         and moves to more and more significant bits as the embedding capacity is used. As you reach the
+         capacity limits the oboration of the colour detail of the image is more pronounced.
+         </p>
+         <p>The recommendation then is to stay within the green and orange zones of embedding
+         capacity. The impact of embedding data will be less in some emages and with different data
+         being embedded so there is no hard and fast limit.
+         </p>
+   
          <a id="Extracting"></a>
          <h2>Extracting</h2>
 
