@@ -136,10 +136,18 @@ async fn extract(
                 let file_path = format!("secrets/{}", file_name);
                 let file_type = &file.file_type;
 
+                // Include coded status of extracted file.
+                // Only need to check possible image types.
+                let mut file_coded = false;
+                if file_type == "image/png" {
+                    file_coded = true;
+                }
+
                 files.push(HashMap::from([
                     ("name", file_name),
                     ("path", file_path),
                     ("type", file_type.to_string()),
+                    ("coded", file_coded.to_string()),
                 ]));
             }
 

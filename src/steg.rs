@@ -672,7 +672,6 @@ impl Steganography {
         let mime_type = get_mime_type(file_extension);
         info!("Data file of mime type: {:?}" , mime_type);
 
-
         // Push the filename onto the vector array so that we have a list of all
         // files written.
         let file_details = EmbeddedFile {
