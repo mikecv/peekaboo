@@ -56,8 +56,8 @@ document.getElementById('imageUpload').addEventListener('change', function(event
     clearThumbnails();
     clearProcessingResults();
 
-    // Reset partial workflows if the exist.
-    // This allows aboarting a workflow and browsing of a new inage.
+    // Reset partial workflows if they exist.
+    // This allows aborting a workflow and browsing of a new inage.
     console.log("Image upload input changed - triggering resetWorkflow.");
     resetWorkflow();
 

@@ -137,10 +137,10 @@ async fn extract(
                 let file_type = &file.file_type;
 
                 // Include coded status of extracted file.
-                // Only need to check possible image types.
+                // Only need to bother checking possible MIME types.
                 let mut file_coded = false;
                 if file_type == "image/png" {
-                    file_coded = true;
+                    file_coded = file.file_coded;
                 }
 
                 files.push(HashMap::from([

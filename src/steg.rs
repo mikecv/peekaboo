@@ -26,9 +26,10 @@ pub mod image_write;
 extern crate image;
 extern crate ring;
 
-use log::{error, info, warn};
+use log::{error, info, warn, debug};
 use image::{DynamicImage, GenericImageView};
 use ring::digest;
+use std::collections::HashMap;
 use std::fmt;
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
@@ -150,7 +151,6 @@ impl Steganography {
         self.pic_height = 0;
         self.pic_col_planes = 0;
         self.embed_capacity = 0;
-        self.embedded_files = Vec::new();
         self.retry_extract = false;
     }
 }
@@ -404,6 +404,9 @@ impl Steganography {
         // Initialise timer for function.
         let extract_start = Instant::now();
 
+        // Initialise embedded files prior to starting.
+        self.embedded_files = Vec::new();
+
         // If retrying extraction then have to reset read position.
         // Here retries occur if wrong password entered.
         if self.retry_extract == true {
@@ -564,7 +567,39 @@ impl Steganography {
                             }
                         }
                     }
+                    
+                    // Go through extracted files and check if embedded.
+                    // First, collect the file names of embedded PNGs for analysis.
+                    let png_file_names: Vec<String> = self.embedded_files
+                        .iter()
+                        .filter(|file| file.file_type == "image/png")
+                        .map(|file| file.file_name.clone())
+                        .collect();
 
+                    // Create a HashMap to store the coded status of each file by its file name.
+                    // This is so we can update the class veriable for embedded_files.
+                    let mut file_coded_map: HashMap<String, bool> = HashMap::new();
+
+                    // Perform analysis on collected file names.
+                    for file_name in png_file_names {
+
+                        // Clone the file name before passing to avoid moving it
+                        self.load_new_file(file_name.clone());
+
+                        // Update hash map of embeded status of files.
+                        let coded_status = self.pic_coded;
+                        file_coded_map.insert(file_name, coded_status);
+                    }
+
+                    // Now that the analysis is done, mutably iterate over embedded_files to set file_coded
+                    // status in the class variable returned to main.
+                    for file in &mut self.embedded_files {
+                        // Check if the file was in the analysis result and set the file_coded attribute.
+                        if let Some(&coded_status) = file_coded_map.get(&file.file_name) {
+                            file.file_coded = coded_status; // Set the coded status for the file.
+                            debug!("Updated file_coded status for: {:?} to {:?}", file.file_name, file.file_coded);
+                        }
+                    }
                 }
                 _ => {
                     warn!("Invalid number of files length.");
@@ -661,7 +696,7 @@ impl Steganography {
 
         // File writing completed, so save and close the file.
         // No need to manually close as the file will be closed when it goes out of scope.
-        info!("Data written to file successfully.");
+        debug!("Data written to file successfully.");
 
         // From file extention fix the file type.
         // Use in front end UI for displaying file thumbnails.
@@ -670,7 +705,7 @@ impl Steganography {
             .and_then(|ext| ext.to_str())
             .unwrap_or("");
         let mime_type = get_mime_type(file_extension);
-        info!("Data file of mime type: {:?}" , mime_type);
+        debug!("Data file of mime type: {:?}" , mime_type);
 
         // Push the filename onto the vector array so that we have a list of all
         // files written.
