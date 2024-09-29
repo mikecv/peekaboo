@@ -24,6 +24,8 @@
          <a href="#Embedding">Embedding</a>
          <a href="#Embedding Example"> - An Example</a>
          <a href="#Embedding Limits"> - Capacity vs Quality</a>
+         <a href="#Compression"> - Image Compression</a>
+         <a href="#Nested_Embedding"> - Nested Embedding</a>
          <a href="#Extracting">Extracting</a>
          <a href="#About">About</a>
       </div>
@@ -267,7 +269,6 @@
          <p class="images">
             <img src="/static/help-pics/MT-blended-39pc.png" alt="Remaining capacity 39%.">
          </p>
-
          <p>The embedding algorithm used targets the least significant bits of the image pixel data first,
          and moves to more and more significant bits as the embedding capacity is used. As you reach the
          capacity limits the oboration of the colour detail of the image is more pronounced.
@@ -276,7 +277,27 @@
          capacity. The impact of embedding data will be less in some emages and with different data
          being embedded so there is no hard and fast limit.
          </p>
-   
+
+         <a id="Compression"></a>
+         <h3>Image Compression</h3>
+         <p> After embedding data into an image it is likely that the filesize of the new image
+         will have increased. As only PNG files can be used (at this point) you can manually used
+         image compression software to see if compression can reduce the filesize.
+         Note that as the compression is lossless, that while the data embedded into the image is
+         included in the compression the integrity of the data is preserved.
+         </p>
+
+         <a id="Nested_Embedding"></a>
+         <h3>Nested Compression</h3>
+         <p> An encoded PNG image file, i.e. one embedded with one or more files, is just another
+         file, and as such can be embedded into another file can any other file.
+         How deep this nesting can go will depend on the embedding capacity of each 'host' image
+         and the physical file sizes of the files embedded into it.
+         </p>
+         <p> To increase the potential for nesting embedded images it's a good idea to use
+         an image compression program to reduce the file size of any encoded images to be included.
+         </p>
+
          <a id="Extracting"></a>
          <h2>Extracting</h2>
 
