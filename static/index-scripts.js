@@ -614,8 +614,15 @@ function performExtraction(password = '') {
                     fileDiv.appendChild(a);
 
                     // Apply the border to the image using the toggleBorder function.
-                    // <MDC> This is just an example of setting the border colour for a thumbnail.
-                    toggleBorder(img, true, 'orange');
+                    // Only need to apply this check for image types as other types can't be encodded.
+                    if (file.coded === true || file.coded === "true") {
+                        // Border thumbnails for encoded images in green.
+                        toggleBorder(img, true, 'green');
+                    }
+                    else {
+                        // No border for non-coded thumbnails.
+                        toggleBorder(img, false, 'grey');
+                    }
 
                     // Create and append a paragraph element with the file name.
                     const fileName = document.createElement('p');
