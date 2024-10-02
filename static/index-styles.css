@@ -211,7 +211,7 @@ li {
 }
 
 .results-thumbnails {
-    max-height: 400px;
+    max-height: 600px;
     overflow-y: auto;
     display: flex;
     flex-wrap: wrap;

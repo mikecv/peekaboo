@@ -27,6 +27,8 @@
          <a href="#Compression"> - Image Compression</a>
          <a href="#Nested_Embedding"> - Nested Embedding</a>
          <a href="#Extracting">Extracting</a>
+         <a href="#Extracted_Files"> - Extracted Files</a>
+         <a href="#Password_Protection"> - Password Protection</a>
          <a href="#About">About</a>
       </div>
       <div id="content" style="padding-left: 50px;">
@@ -288,7 +290,7 @@
          </p>
 
          <a id="Nested_Embedding"></a>
-         <h3>Nested Compression</h3>
+         <h3>Nested Embedding</h3>
          <p> An encoded PNG image file, i.e. one embedded with one or more files, is just another
          file, and as such can be embedded into another file can any other file.
          How deep this nesting can go will depend on the embedding capacity of each 'host' image
@@ -297,9 +299,100 @@
          <p> To increase the potential for nesting embedded images it's a good idea to use
          an image compression program to reduce the file size of any encoded images to be included.
          </p>
+         <p> The following image shows extracted files from a nested set of embedded images.
+         Note that a green border around a thumbnail indicates that the file is an encoded image.
+         In this case the extracted files includes 3 encoded files and a host of other images.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/nested-embedding.png" alt="Nested embedding.">
+         </p>
+         <p> To extract the files from the nested images they should be individually uploaded
+         as normal and following the normal extraction procedure. The same applies for any
+         further levels of nesting.
+         </p>
+         <p> Nested encoded files are not extracted normally as it would be interactive regardless
+         as eached encoded file could be password protected. Also because the depth of encoding is uncknown,
+         and therefore the time to complete is unknown.
+         </p>
 
          <a id="Extracting"></a>
          <h2>Extracting</h2>
+
+         <p> The earlier topics went through embedding data files into images. Here we are
+         dealing with extracting the data files from the image they are embedded into, and restoring the files.
+         </p>
+         <p> As with the embedding process we start with browing to the file containing the embedded images,
+         and <i><b>Uploading</b></i> the file for processing. If the uploaded file is encoded the
+         <i><b>Extract</b></i> button will be available as illustrated below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/embedded-image.png" alt="Embedded image.">
+         </p>
+         <p> Note that every image that is embedded with data can also be re-imbedded with new data,
+         that is, the <i><b>Embed</b></i> button will also be available. In fact, images can be
+         embedded with new images over and over again, and it goes without saying that previously
+         embedded files are lost.
+         </p>
+         <p> Note also in the previous image that the upload status indicates that the image is encoded,
+         and in this case is not password protected. Additionally, as the <i><b>Embed</b></i> option
+         is available the embedding capacity of the image is shown, where the embedding capacity assumes
+         that the currently embedded files would be lost.
+         </p>
+
+         <p> On pressing the <i><b>Extract</b></i> button the embedded files will be extracted and
+         a thumbnail will be shown for each file as illustrated below. The files themselves will be
+         saved in the applications's 'secrets' subfolder. Note that if a file of the same name already
+         exists a file with a numeric extension will be saved instead so as to preserve the existing file.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/Extracted-files.png" alt="Extracted files.">
+         </p>
+
+         <a id="Extracted_Files"></a>
+         <h3>Extracted Files</h3>
+
+         <p> As illustrated in the previous section, a thumbnail is shown for each file extracted.
+         And in the case of image files an image thumbnail is shown. Clicking on an image thumbnail
+         will open the thumbnail in a new prowser tab using the default image viewer. The same result
+         can be achieved by right clicking the image and selecting the appropriate action from the menu.
+         </p>
+
+         <p> Some common file types have matching thumbnails as illustrated in the following image. Other
+         file types will be shown with a default thumbnail. Where a file thumbnail (other than an image type)
+         is displayed, clicking on the thumbnail will download the file to the default download location.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/File-types.png" alt="File types.">
+         </p>
+         <p> Also illustrated in the previous image is that the extracted thumbnails section of the
+         page automatically scrolls downwards to show more thumbnails. It is also worthwhile pointing
+         out that thumbnails are shown left to right and top to bottom in the order that the
+         files are extracted.
+         </p>
+
+         <a id="Password_Protection"></a>
+         <h3>Password Protection</h3>
+
+         <p> If file embedding includes password protection the user will be prompted to enter
+            the set password to enable extraction to complete as illustrated in the image below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/password-guess.png" alt="Password entry.">
+         </p>
+         <p> If the user enters a wrong password a dialog will show them that that is the case,
+         and that they have used the first of 3 attampts at password entry as illustrated in
+         the following image.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/password-error.png" alt="Wrong password entered.">
+         </p>
+         <p> If the user enters the correct password within the retry limit extraction will proceed
+         as normal and described above. If the user fail to enter the correct password the
+         extraction will be aborted with an error status message as illustrated below.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/extraction-failed-password.png" alt="Extraction failed status.">
+         </p>
 
          <a id="About"></a>
          <h2>About</h2>
