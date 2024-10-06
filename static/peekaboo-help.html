@@ -29,6 +29,7 @@
          <a href="#Extracting">Extracting</a>
          <a href="#Extracted_Files"> - Extracted Files</a>
          <a href="#Password_Protection"> - Password Protection</a>
+         <a href="#Nested_Extraction"> - Nested Extraction</a>
          <a href="#About">About</a>
       </div>
       <div id="content" style="padding-left: 50px;">
@@ -300,21 +301,6 @@
          <p> To increase the potential for nesting embedded images it's a good idea to use
          an image compression program to reduce the file size of any encoded images to be included.
          </p>
-         <p> The following image shows extracted files from a nested set of embedded images.
-         Note that a green border around a thumbnail indicates that the file is an encoded image.
-         In this case the extracted files includes 3 encoded files and a host of other images.
-         </p>
-         <p class="images">
-            <img src="/static/help-pics/nested-embedding.png" alt="Nested embedding.">
-         </p>
-         <p> To extract the files from the nested images they should be individually uploaded
-         as normal and following the normal extraction procedure. The same applies for any
-         further levels of nesting.
-         </p>
-         <p> Nested encoded files are not extracted normally as it would be interactive regardless
-         as eached encoded file could be password protected. Also because the depth of encoding is uncknown,
-         and therefore the time to complete is unknown.
-         </p>
 
          <a id="Extracting"></a>
          <h2>Extracting</h2>
@@ -393,6 +379,29 @@
          </p>
          <p class="images">
             <img src="/static/help-pics/extraction-failed-password.png" alt="Extraction failed status.">
+         </p>
+
+         <a id="Nested_Extraction"></a>
+         <h3>Nested Extraction</h3>
+         <p> As mentioned in the section on <a href="#Nested_Embedding">Nested Embedding</a>
+         an embedded image can also contain embedded images, each with their own embedded
+         images, so on and so forth.
+         </p>
+         <p> The following image shows extracted files from a nested set of embedded images.
+         Note that a green border around a thumbnail indicates that the file is an encoded image.
+         In this case the extracted files includes 3 encoded images and a number of other images
+         at this level.
+         </p>
+         <p class="images">
+            <img src="/static/help-pics/nested-embedding.png" alt="Nested embedding.">
+         </p>
+         <p> To extract the files from the nested images they should be individually uploaded
+         as normal and following the normal extraction procedure. The same applies for any
+         further levels of nesting.
+         </p>
+         <p> Nested encoded images are not extracted iteratively as it would be interactive regardless
+         as eached encoded image could be password protected. Also because the depth of encoding is unknown,
+         and therefore the time to complete is unknown.
          </p>
 
          <a id="About"></a>
