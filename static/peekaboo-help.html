@@ -50,10 +50,10 @@
 
          <a id="Overview"></a>
          <h2>Overview</h2>
-         <p>There are basically two functions that the application performs. Firstly embedding
+         <p>There are basically two functions that the application performs. Firstly, embedding
          a file or files into an image and saving the resultant image, and secondly,
          being able to detect that an image has embedded data and being able to extract and save
-         these embedded data files.
+         the embedded data.
          </p>
          <p>There are a number of limitations with this application of Steganography, a key one
          being that the original images if compressed must use lossless compression.
@@ -80,10 +80,10 @@
          <p>The first step is to browse to the source image, which could be an encodded image,
          or it could be an image you want to embed files into. Either way you start by selecting
          the <i><b>"Browse for Image"</i></b> button.
-         Note that any time that the "Browse for Image" button is displayed, it can be selected
-         to reset the application to starting conditions, i.e. it can be used to abort
-         in-progress embed or extract workflows. Note that it makes no difference if embedding
-         files into an already encodded image or one that has never been encoded.
+         Note that any time that the <i><b>"Browse for Image"</i></b> button is displayed,
+         it can be selected to reset the application to starting conditions, i.e. it can be used
+         to abort in-progress embed or extract workflows. Note that it makes no difference if
+         embedding files into an already encodded image or one that has never been encoded.
          </p>
          <p class="images">
          <img src="/static/help-pics/browseImage.png" alt="Browse for image.">
@@ -103,13 +103,13 @@
          </p>
          <p>With the starting PNG image browsed to, the user can select the <i><b>"Upload"</b></i> button.
          The <i><b>"Upload"</b></i> button uploads the image to the application where the image
-         analysed. Analysed here means determining if the image file is already embedded with
-         data, or is not know to be encoded. The outcome of the analysis determines whether
+         is analysed. Analysed here means determining if the image file is already embedded with
+         data, or is not known to be encoded. The outcome of the analysis determines whether
          embedding and/or extraction workflows can be performed.
          </p>
 
          <a id="Unencoded Images"></a>
-         <h3>Uncenoded Images</h3>
+         <h3>Unencoded Images</h3>
          <p>As the name suggests an unencoded image is a PNG image file that has not been encoded
          by the application, that is, it does not contain files that can be extracted.
          Browsing to, and then uploading an unencoded image file will result in analysis showing that the
@@ -122,7 +122,7 @@
             <ul>
                <li>The image file is not encoded.</li>
                <li>As a result, the image file is not password protected.</li>
-               <li>The embedding capacity of the file is some 45+ MB.</li>
+               <li>The embedding capacity of the image is some 45+ MB.</li>
             </ul>
          </p>
          <p>Being unencoded, it means that the image is suitable for embedding, hence only the
@@ -143,8 +143,8 @@
          <p>In the example above of uploading an encoded image we see a number of things, namely:
             <ul>
                <li>The image file is encoded.</li>
-               <li>The image file in this case is password protected. Note that it needn't be.</li>
-               <li>The embedding capacity of the file is some 13+ MB.</li>
+               <li>The image file in this case is not password protected. Note that could be.</li>
+               <li>The embedding capacity of the file is some 2.7+ MB.</li>
             </ul>
          </p>
          <p>Being encoded, it means that the image currently has embedded data, and is also suitable for embedding,
@@ -195,7 +195,7 @@
             <img src="/static/help-pics/embedbutton.png" alt="Embed button pressed.">
          </p>
          <p> Pressing the <i><b>"Browse for Files to Embed"</b></i> button will open the default
-         browser and allow the selection of 1 or more files as illustrated in the figure below.
+         file browser and allow the selection of 1 or more files as illustrated in the figure below.
          </p>
          <p class="images">
             <img src="/static/help-pics/embeddingGreenFiles.png" alt="Embedding < 35% capacity.">
@@ -203,8 +203,8 @@
          <p> There are a few interesting pieces of information in the previous image, namely:
             <ul>
                <li>The files selected and their file sizes are listed.</li>
-               <li>The remaining embedding capacity, in this case 83.2%.</li>
-               <li>The green border indicates more than 65% remaining capacity.</li>
+               <li>The remaining embedding capacity, in this case 83.2% is updated in the results text.</li>
+               <li>The green border on the results text indicates more than 65% remaining capacity.</li>
             </ul>
          </p>
          <p> At this point the user can repeat the process and select additional files to embed,
@@ -226,7 +226,7 @@
             <img src="/static/help-pics/embeddingDone.png" alt="Embedding process complete.">
          </p>
          <p> If all went well, the result will be a success, and the image embedded with the files
-         will not be <i>>noticably</i> different from the original uploaded image. Note that selecting
+         will not be <i>noticably</i> different from the original uploaded image. Note that selecting
          the resultant image will display the image in a new browser page for more closer inspection.
          </p>
 
@@ -235,10 +235,11 @@
          <p> In the example in the previous section the embedding capacity used was only 16.8%
           (remaining capacity of 83.2%), and was in the green, or safe zone, where the green zone
          extendes from 100% down to 65% remaining capacity. As previously noted this is considered
-         the safe zone, i.e. the final embedded image is not noticeab;y different fron the original image.
+         the safe zone, i.e. the final embedded image is expected to not be noticeably different fron
+         the original image.
          </p>
-         <p>If we try and embed more data into the image we'll enter the orange zone, where remaining Capacity
-         is between 65% and 50% remaining. In the example illustrated below we have embedded more data
+         <p>If we try and embed more data into the image we'll enter the orange zone, where remaining capacity
+         is between 65% and 50%. In the example illustrated below we have embedded more data
          into the image.
          </p>
          <p class="images">
@@ -254,7 +255,7 @@
          image is the original, and the right half is the resultant image after embedding. If you look
          at the right half of the image you can see areas where the colour is washed out. That said,
          distortion is more visible where areas of the image are the same colour, e.g. in the background
-         or on parts of Margaret's cheeck. In areas of finer detail like the hair and facial features
+         or on parts of Margaret's cheek. In areas of finer detail like the hair and facial features
          the distortion is not as obvious.
          </p>
          <p> We can see this even more in the following example where the embedding has been pushed to
@@ -273,7 +274,7 @@
          </p>
          <p>The embedding algorithm used targets the least significant bits of the image pixel data first,
          and moves to more and more significant bits as the embedding capacity is used. As you reach the
-         capacity limits the oboration of the colour detail of the image is more pronounced.
+         capacity limits the aberration of the colour detail of the image is more pronounced.
          </p>
          <p>The recommendation then is to stay within the green and orange zones of embedding
          capacity. The impact of embedding data will be less in some emages and with different data
@@ -285,14 +286,14 @@
          <p> After embedding data into an image it is likely that the filesize of the new image
          will have increased. As only PNG files can be used (at this point) you can manually used
          image compression software to see if compression can reduce the filesize.
-         Note that as the compression is lossless, that while the data embedded into the image is
-         included in the compression the integrity of the data is preserved.
+         Note that as the compression is lossless, and that the data embedded into the image is
+         included in the compression, the integrity of the data is preserved.
          </p>
 
          <a id="Nested_Embedding"></a>
          <h3>Nested Embedding</h3>
          <p> An encoded PNG image file, i.e. one embedded with one or more files, is just another
-         file, and as such can be embedded into another file can any other file.
+         file, and as such can be embedded into another file as any other file can.
          How deep this nesting can go will depend on the embedding capacity of each 'host' image
          and the physical file sizes of the files embedded into it.
          </p>
@@ -351,9 +352,9 @@
          <a id="Extracted_Files"></a>
          <h3>Extracted Files</h3>
 
-         <p> As illustrated in the previous section, a thumbnail is shown for each file extracted.
-         And in the case of image files an image thumbnail is shown. Clicking on an image thumbnail
-         will open the thumbnail in a new prowser tab using the default image viewer. The same result
+         <p> As illustrated in the previous section, a thumbnail is shown for each file extracted,
+         and in the case of image files an image thumbnail is shown. Clicking on an image thumbnail
+         will open the thumbnail in a new browser page using the default image viewer. The same result
          can be achieved by right clicking the image and selecting the appropriate action from the menu.
          </p>
 
@@ -380,7 +381,7 @@
             <img src="/static/help-pics/password-guess.png" alt="Password entry.">
          </p>
          <p> If the user enters a wrong password a dialog will show them that that is the case,
-         and that they have used the first of 3 attampts at password entry as illustrated in
+         and that they have used the first of 3 attempts at password entry as illustrated in
          the following image.
          </p>
          <p class="images">
