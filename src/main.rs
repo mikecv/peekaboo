@@ -270,6 +270,11 @@ async fn help(settings: web::Data<Settings>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // Create files if they don't already exist.
+    fs::create_dir_all("./logs")?;
+    fs::create_dir_all("./images")?;
+    fs::create_dir_all("./secrets")?;
+
     // Logging configuration held in log4rs.yml .
     log4rs::init_file("log4rs.yml", Default::default()).unwrap();
 

@@ -40,6 +40,9 @@ use std::time::{Instant, Duration};
 use crate::settings::Settings;
 use crate::SETTINGS;
 
+// Define program code here so not exposed in settings file.
+const PROG_CODE : &str = "PICCODER";
+
 // Error result enum.
 #[derive(Debug)]
 pub enum SteganographyError {
@@ -271,8 +274,8 @@ impl Steganography {
             // Allocation (pw_protected_chars) byte for is password protected
             // Allocation (pw_chars) bytes for password
             // Allocation (num_files_chars) bytes for number of files
-            self.embed_capacity = self.embed_capacity - self.settings.prog_code.len() as u64 - 36;
-            self.embed_capacity -= self.settings.prog_code.len() as u64;
+            self.embed_capacity = self.embed_capacity - PROG_CODE.len() as u64 - 36;
+            self.embed_capacity -= PROG_CODE.len() as u64;
             self.embed_capacity -= self.settings.pw_protected_chars as u64;
             self.embed_capacity -= self.settings.pw_chars as u64;
             self.embed_capacity -= self.settings.num_files_chars as u64;
@@ -331,7 +334,7 @@ impl Steganography {
         // File large enough to hold preamble code.
         // Extract data from image and match with code.
         // Read number of bytes for the pic code.
-        let bytes_to_read:u32 = self.settings.prog_code.len().try_into().unwrap();
+        let bytes_to_read:u32 = PROG_CODE.len().try_into().unwrap();
         self.read_data_from_image(bytes_to_read);
         if self.bytes_read != bytes_to_read {
             error!("Expected bytes: {}, bytes read: {}", bytes_to_read, self.bytes_read);
@@ -345,7 +348,7 @@ impl Steganography {
             match string_result {
                 Ok(string) => {
                     // String read so need to see if it matches the code.
-                    if string == self.settings.prog_code {
+                    if string == PROG_CODE {
                         self.pic_coded = true;
                         info!("Image is pic coded.");
                     }
@@ -415,7 +418,7 @@ impl Steganography {
 
             // Need to point to password location.
             // Offset by previous file lengths.
-            let pw_offset:u32 = self.settings.prog_code.len() as u32 + self.settings.pw_protected_chars as u32;
+            let pw_offset:u32 = PROG_CODE.len() as u32 + self.settings.pw_protected_chars as u32;
             self.read_data_from_image(pw_offset);
         }
 
@@ -733,7 +736,7 @@ fn get_mime_type(extension: &str) -> &str {
         "mp3" => "audio/mpeg",
         "mp4" => "video/mp4",
         "pdf" => "application/pdf",
-        "gz" => "application/x-tar",
+        "gz" | "tar.gz" => "application/x-tar",
         // Add other extensions and their MIME types as needed.
         _ => "application/octet-stream",
     }
@@ -827,7 +830,7 @@ impl Steganography {
 
         // Send preamble as bytes vector for embedding.
         // All writes to the image is done in chunks.
-        let preamble_string = self.settings.prog_code.clone();
+        let preamble_string = PROG_CODE;
         let preamble_bytes = preamble_string.as_bytes();
         for chunk in preamble_bytes.chunks(self.settings.byte_chunk.try_into().unwrap()) {
             let bytes_written:u32 = self.write_data_to_image(chunk);

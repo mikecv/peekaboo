@@ -4,7 +4,6 @@ program_ver:        0.0.1
 program_devs:       ["Michael Cvitanovich"]
 program_web:        "galacticwingcommander"    
 # Code embedding settings.
-prog_code:          "PICCODER"
 byte_chunk:         50000
 secret_folder:      "./secrets"
 thumb_folder:       "./images"
